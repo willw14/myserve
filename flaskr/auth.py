@@ -11,6 +11,7 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 import os
+from flaskr.models import User
 
 auth = Blueprint('auth', __name__)
 
@@ -83,31 +84,30 @@ def callback():
         unique_id = userinfo_response.json()["sub"]
         users_email = userinfo_response.json()["email"]
         picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
+        first_name = userinfo_response.json()["given_name"]
+        last_name = userinfo_response.json()["family_name"]
     else:
         return "User email not available or not verified by Google.", 400
 
     # Create a user in our db with the information provided
     # by Google
-    user = Users(
-        account_id=unique_id, first_name=users_name, email=users_email, profile_pic=picture
-    )
+    if User.is_user(users_email):
+        user = User.load(users_email)
 
-    # Doesn't exist? Add to database
-    if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
+        #Updates the users record with their info from Google incase anything e.g. picture has changed
+        user.update(unique_id, first_name, last_name, picture)
 
-    # Begin user session by logging the user in
-    login_user(user)
+        # Begin user session by logging the user in
+        login_user(user)
 
     # Send user back to homepage
-    return redirect(url_for("index"))
+    return redirect(url_for("main.index"))
 
 @auth.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("index"))
+    return redirect(url_for("main.index"))
 
 
 
