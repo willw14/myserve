@@ -24,7 +24,7 @@ GOOGLE_DISCOVERY_URL = (
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-#add error handling
+#ADD ERROR HANDLING
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
@@ -89,18 +89,14 @@ def callback():
     else:
         return "User email not available or not verified by Google.", 400
 
-    # Create a user in our db with the information provided
-    # by Google
     if User.is_user(users_email):
         user = User.load(users_email)
 
         #Updates the users record with their info from Google incase anything e.g. picture has changed
         user.update(unique_id, first_name, last_name, picture)
 
-        # Begin user session by logging the user in
-        login_user(user)
-
-    # Send user back to homepage
+        login_user(user, remember=True)
+    #ADD SOME SORT OF HANDLING IF USER HASN'T BEEN GRANTED ACCESS
     return redirect(url_for("main.index"))
 
 @auth.route("/logout")
