@@ -2,6 +2,7 @@ from flaskr import app
 from flask import Blueprint
 from flask_login import current_user, login_required
 main = Blueprint('main', __name__)
+from flaskr.models import UserRole
 
 @main.route('/')
 def index():
@@ -13,7 +14,7 @@ def index():
             "<div><p>Google Profile Picture:</p>"
             '<img src="{}" alt="Google profile pic"></img></div>'
             '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.first_name, current_user.role, current_user.email, current_user.photo
+                current_user.first_name, current_user.last_name, current_user.email, current_user.photo
             )
         )
     else:

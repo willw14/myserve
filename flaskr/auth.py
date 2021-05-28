@@ -30,6 +30,7 @@ def get_google_provider_cfg():
 
 @auth.route("/login")
 def login():
+    """Actual code
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -41,7 +42,11 @@ def login():
         redirect_uri=request.base_url + "/callback",
         scope=["openid", "email", "profile"],
     )
-    return redirect(request_uri)
+    return redirect(request_uri)"""
+    #for testing purposes
+    user = User.load("17087@burnside.school.nz")
+    login_user(user)
+    return redirect(url_for('main.index'))
 
 @auth.route("/login/callback")
 def callback():
