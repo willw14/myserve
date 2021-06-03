@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if current_user.is_authenticated %}
+<p>Hello, {{user.first_name}}! You're logged in! Email: {{user.email}}</p>
+<div><p>Google Profile Picture:</p>
+    <img src="{{user.photo}}" alt="Google profile pic"></img>
+</div>
+<a class="button" href='{{ url_for("auth.logout")}}'>Logout</a>
+{% else %}
+<a class="button" href="/login">Google Login</a>
+{% endif %}
+
+{% endblock %}

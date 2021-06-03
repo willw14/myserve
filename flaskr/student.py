@@ -1,10 +1,9 @@
 from flaskr import app
 from flask import Blueprint
 from flask_login import current_user, login_required
-main = Blueprint('main', __name__)
-from flaskr.models import UserRole
+student = Blueprint('student', __name__)
 
-@main.route('/')
+@student.route('/')
 def index():
     if current_user.is_authenticated:
         print(current_user.role, current_user.role_id)

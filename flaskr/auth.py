@@ -1,5 +1,5 @@
 import json
-from flask import Flask, redirect, request, url_for, Blueprint
+from flask import Flask, redirect, request, url_for, Blueprint, render_template
 from flask_login import (
     LoginManager,
     current_user,
@@ -28,9 +28,15 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
+@auth.route('/')
+def index():
+    if current_user.is_authenticated:
+        print(current_user.role, current_user.role_id)
+
+    return render_template('auth/index.html', user=current_user)
+
 @auth.route("/login")
 def login():
-    """Actual code
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -42,11 +48,7 @@ def login():
         redirect_uri=request.base_url + "/callback",
         scope=["openid", "email", "profile"],
     )
-    return redirect(request_uri)"""
-    #for testing purposes
-    user = User.load("17087@burnside.school.nz")
-    login_user(user)
-    return redirect(url_for('main.index'))
+    return redirect(request_uri)
 
 @auth.route("/login/callback")
 def callback():
@@ -102,13 +104,13 @@ def callback():
 
         login_user(user, remember=True)
     #ADD SOME SORT OF HANDLING IF USER HASN'T BEEN GRANTED ACCESS
-    return redirect(url_for("main.index"))
+    return redirect(url_for("auth.index"))
 
 @auth.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("main.index"))
+    return redirect(url_for("auth.index"))
 
 
 
