@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <div class="col-2 col-sm-4 col-md-3 col-xl-2 px-sm-2 px-0 bg-dark shadow">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100">
+                <a href='{{url_for("student.dashboard")}}' class="align-items-center py-3">
+                    <img class="img-fluid d-none d-sm-block"src="/static/img/logo_wht.png">
+                    <img class="img-fluid d-block d-sm-none"src="/static/img/favicon_lg.png">
+                </a>
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li>
+                        <a href='{{url_for("student.dashboard")}}' class="nav-link text-white align-middle px-0">
+                            <i class="fs-4 color-green bi-speedometer2"></i> <span class="ms-2 d-none d-sm-inline">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href='{{url_for("student.dashboard")}}' class="nav-link text-white px-0 align-middle">
+                            <i class="fs-4 bi-journal-plus"></i> <span class="ms-2 d-none d-sm-inline">Add Hours</span></a>
+                    </li>
+                    <li>
+                        <a href='{{url_for("student.dashboard")}}' class="nav-link text-white px-0 align-middle">
+                            <i class="fs-4 bi-table"></i> <span class="ms-2 d-none d-sm-inline">Log</span> </a>
+                    </li>
+                    <li>
+                        <a href='{{url_for("student.dashboard")}}' class="nav-link text-white px-0 align-middle">
+                            <i class="fs-4 bi-people"></i> <span class="ms-2 d-none d-sm-inline">Groups</span> </a>
+                    </li>
+                </ul>
+                
+                <div class="dropdown pb-4">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src={{user.photo}} alt="Profile Photo" width="30" height="30" class="rounded-circle">
+                        <span class="d-none d-sm-inline mx-2">{{user.first_name}}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">Sign out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col py-3">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

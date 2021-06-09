@@ -30,10 +30,7 @@ def get_google_provider_cfg():
 
 @auth.route('/')
 def index():
-    if current_user.is_authenticated:
-        print(current_user.role, current_user.role_id)
-
-    return render_template('auth/index.html', user=current_user)
+    return render_template('auth/index.html')
 
 @auth.route("/login")
 def login():
@@ -99,12 +96,16 @@ def callback():
     if User.is_user(users_email):
         user = User.load(users_email)
 
-        #Updates the users record with their info from Google incase anything e.g. picture has changed
+        #Updates the user's record with their info from Google in case anything e.g. picture has changed
         user.update(unique_id, first_name, last_name, picture)
 
         login_user(user, remember=True)
+        redirect_to = "student.dashboard"
+    else:
+        redirect_to = "auth.index"
     #ADD SOME SORT OF HANDLING IF USER HASN'T BEEN GRANTED ACCESS
-    return redirect(url_for("auth.index"))
+    return redirect(url_for(redirect_to))
+    
 
 @auth.route("/logout")
 @login_required
