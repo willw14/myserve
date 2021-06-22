@@ -3,15 +3,50 @@
 {% block title %}Dashboard | MyServe{% endblock %}
 
 {% block content %}
+<h3 class="display-6 text-center m-4">Welcome back, {{current_user.first_name}}!</h1>
 <div class="row">
-    <div class="col">
-        Column
+    <div class="col-lg">
+        <div class="card mb-3 shadow-sm rounded-pill">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="..." alt="...">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">Card title</h5>
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
-    <div class="col">
-        Column
+    <div class="col-lg">
+        <div class="card mb-3 shadow-sm rounded-pill">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="..." alt="...">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">Card title</h5>
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
-    <div class="col">
-        Column
+    <div class="col-lg">
+        <div class="card mb-3 shadow-sm rounded-pill">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="..." alt="...">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">Card title</h5>
+                  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
 </div>
 {% endblock %}

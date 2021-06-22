@@ -33,6 +33,7 @@ class User(UserMixin, db.Model):
     def enrol(user_id, email, role, form_class=None):
         """Adds a user to the database so that they can then sign in with Google."""
         #NOT TESTED
+        #Need to enrol users in Group 0 (None)
         new_user = User(id=user_id, email=email, role_id=role, form_class=form_class)
         db.session.add(new_user)
         db.session.commit()
@@ -54,7 +55,7 @@ class User(UserMixin, db.Model):
         self.photo = picture
         db.session.commit()
         return
-    
+
 
 class Group(db.Model):
     __tablename__ = 'group'
@@ -79,12 +80,24 @@ class Log(db.Model):
     time = db.Column(db.Numeric())
     status_id = db.Column(db.Integer(), db.ForeignKey('log_status.id'))
     date = db.Column(db.DateTime())
-    title = db.Column(db.String())
-    description = db.Column(db.Text())
+    description = db.Column(db.String())
 
     user = db.relationship("User", back_populates="hours")
     group = db.relationship("Group", back_populates="hours")
     status = db.relationship("LogStatus", back_populates="hours")
+
+    @staticmethod
+    def add_hours(user_id, group_id, time, description, date):
+        new_hours = Log(
+            user_id=user_id, 
+            group_id=group_id, 
+            time=time, 
+            description=description,
+            date=date
+            )
+        db.session.add(new_hours)
+        db.session.commit()
+        return
 
 
 class LogStatus(db.Model):
