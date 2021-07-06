@@ -1,10 +1,21 @@
 from flask_login import UserMixin, user_logged_in
 from flaskr import db
+from datetime import datetime
+from sqlalchemy.ext.associationproxy import association_proxy
 
-GroupMembers = db.Table('group_members', db.Model.metadata,
-                    db.Column('user_id', db.String, db.ForeignKey('user.user_id')),
-                    db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
-                   )
+
+class GroupMembers(db.Model):
+    __tablename__ = "group_members"
+    user_id = db.Column('user_id', db.String, db.ForeignKey('user.user_id'), primary_key=True)
+    group_id = db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
+    group_hours = db.Column('group_hours', db.Numeric())
+
+    user = db.relationship("User", back_populates="groups")
+    group = db.relationship("Group", back_populates="users")
+
+    @classmethod
+    def load(cls, user_id, group_id):
+        return cls.query.filter_by(user_id=user_id, group_id=group_id).first()
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -21,20 +32,19 @@ class User(UserMixin, db.Model):
 
     role = db.relationship("UserRole", back_populates="role_group")
     hours = db.relationship("Log", back_populates="user")
-    groups = db.relationship("Group", secondary=GroupMembers, back_populates="users")
+    groups = db.relationship("GroupMembers", back_populates="user")
 
-    @staticmethod
-    def load(email):
+    @classmethod
+    def load(cls, email):
         """Loads a user from the database using their email."""
-        person = User.query.filter_by(email=email).first()
-        return person
+        return cls.query.filter_by(email=email).first()
 
     @staticmethod
     def enrol(user_id, email, role, form_class=None):
         """Adds a user to the database so that they can then sign in with Google."""
         #NOT TESTED
         #Need to enrol users in Group 0 (None)
-        new_user = User(id=user_id, email=email, role_id=role, form_class=form_class)
+        new_user = User(id=user_id, email=email, role_id=role, form_class=form_class, total=0)
         db.session.add(new_user)
         db.session.commit()
         return
@@ -61,9 +71,15 @@ class Group(db.Model):
     __tablename__ = 'group'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(), unique=True)
+    access_code = db.Column(db.String(), unique=True)
 
     hours = db.relationship("Log", back_populates="group")
-    users = db.relationship("User", secondary=GroupMembers, back_populates="groups")
+    users = db.relationship("GroupMembers", back_populates="group")
+
+    def user_total(self, user):
+        group_user = GroupMembers.load(self.id, user.id)
+        return group_user.group_hours
+
 
 class UserRole(db.Model):
     __tablename__ = 'user_role'
@@ -78,8 +94,9 @@ class Log(db.Model):
     user_id = db.Column(db.String(), db.ForeignKey('user.user_id'))
     group_id = db.Column(db.Integer(), db.ForeignKey('group.id'))
     time = db.Column(db.Numeric())
-    status_id = db.Column(db.Integer(), db.ForeignKey('log_status.id'))
-    date = db.Column(db.DateTime())
+    status_id = db.Column("status", db.Integer(), db.ForeignKey('log_status.id'))
+    date = db.Column(db.Date())
+    log_time = db.Column(db.DateTime())
     description = db.Column(db.String())
 
     user = db.relationship("User", back_populates="hours")
@@ -87,15 +104,20 @@ class Log(db.Model):
     status = db.relationship("LogStatus", back_populates="hours")
 
     @staticmethod
-    def add_hours(user_id, group_id, time, description, date):
+    def add_hours(user, group_id, time, description, date):
         new_hours = Log(
-            user_id=user_id, 
+            user_id=user.id, 
             group_id=group_id, 
             time=time, 
             description=description,
-            date=date
+            date=date,
+            log_time=datetime.now(),
+            status_id = 1
             )
         db.session.add(new_hours)
+        user.total += new_hours.time
+        group_member = GroupMembers.load(user_id=user.id, group_id=group_id)
+        group_member.group_hours += new_hours.time
         db.session.commit()
         return
 
@@ -106,3 +128,34 @@ class LogStatus(db.Model):
     name = db.Column(db.String())
     
     hours = db.relationship("Log", back_populates="status")
+
+
+class Award(db.Model):
+    __tablename__ = "award"
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String())
+    colour = db.Column(db.String())
+    threshold = db.Column(db.Integer())
+
+    @staticmethod
+    def get_awards():
+        return Award.query.order_by(Award.threshold).fetchall()
+
+    @staticmethod
+    def get_current_award(hours):
+        awards = get_awards()
+
+        index_found = False
+        for i in range(len(awards)):
+            if hours - awards[i].threshold > 0 and not index_found:
+                current_award = awards[i]
+                index_found = True
+        
+        return current_award
+
+    @staticmethod
+    def get_next_award(hours):
+        awards = get_awards()
+        current_award = get_current_award(hours)
+
+        awards.index
