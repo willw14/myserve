@@ -5,7 +5,7 @@ from flask_login import current_user
 
 class AddHours(FlaskForm):
      description = TextField('Description', validators=[DataRequired()])
-     hours = DecimalField('Hours', validators=[DataRequired()])
+     hours = DecimalField('Hours', places = 2, validators=[DataRequired()])
      group = SelectField("Group", coerce=int, validators=[DataRequired()])
      date  = DateField('Date Completed', format='%d/%m/%y', validators=[DataRequired()])
      submit = SubmitField("Log Hours", validators=[DataRequired()])

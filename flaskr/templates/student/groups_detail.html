@@ -5,20 +5,21 @@
 {% block content %}
 <h1>{{ group.name }}</h1>
 <h5>Teacher(s) In Charge: {{group.get_teachers_string()}}</h5>
-<h5>Hours from Group: {{group.get_teachers_string()}}</h5>
+<h5>Hours from Group: {{'%0.2f' | format(group.user_total(user))}}</h5>
 <table id="groups" class="table table-striped" style="width:100%">
     <thead>
         <tr>
-            <th>Group</th>
-            <th>Total Hours</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Hours</th>
         </tr>
     </thead>
     <tbody>
-    {% for group_assoc in user.groups %}
-    
+    {% for item in group.get_user_log(user) %}
         <tr>
-            <td><a href="/student/groups/{{ group_assoc.group.id }}">{{group_assoc.group.name}}</a></td>
-            <td>{{'%0.2f' | format(group_assoc.group_hours)}}</td>
+            <td>{{item.date}}</td>
+            <td>{{item.description}}</td>
+            <td>{{'%0.2f' | format(item.time)}}</td>
         </tr>
     {% endfor %}
     </tbody>

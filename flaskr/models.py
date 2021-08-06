@@ -65,6 +65,14 @@ class User(UserMixin, db.Model):
         self.photo = picture
         db.session.commit()
         return
+    
+    def get_rank(self):
+        """Returns the place of the user on the leaderboard.
+        UNFINISHED"""
+        sub = User.query(self.id, func.row_number().over(order_by=desc(UserModel.age)).label('pos')).subquery()
+        pos = session.query(sub.c.pos).filter(sub.c.id==user_id).scalar()
+        return pos
+
 
 
 class Group(db.Model):
@@ -77,8 +85,35 @@ class Group(db.Model):
     users = db.relationship("GroupMembers", back_populates="group")
 
     def user_total(self, user):
-        group_user = GroupMembers.load(self.id, user.id)
+        """Takes a user object and finds how many hours the user has completed in that group."""
+        group_user = GroupMembers.load(user.id, self.id)
         return group_user.group_hours
+
+    @classmethod
+    def load(cls, id):
+        """Loads a group from the database using its ID"""
+        return cls.query.filter_by(id=id).first()
+
+    def get_teachers(self):
+        """Uses the group ID to return a list of user objects of the teachers in a particualr group"""
+        teachers = User.query.join(User.groups).filter(GroupMembers.group_id == self.id, User.role_id.in_([2, 3])).all()
+        return teachers
+
+    def get_teachers_string(self):
+        """Gives the teachers of a group in a format suitable for display"""
+        teachers = self.get_teachers()
+        teacher_names = []
+        for teacher in teachers:
+            teacher_names.append(teacher.first_name + " " + teacher.last_name)
+        return ", ".join(teacher_names)
+
+    def get_user_log(self, user):
+        """takes a user object and returns a list of all of a users hours in that group"""
+        thingy = Log.query.filter(Log.user_id == user.id, Log.group_id==self.id).all()
+        print(self.hours)
+        print(thingy)
+        return thingy
+
 
 
 class UserRole(db.Model):
@@ -139,23 +174,31 @@ class Award(db.Model):
 
     @staticmethod
     def get_awards():
-        return Award.query.order_by(Award.threshold).fetchall()
+        return Award.query.order_by(Award.threshold).all()
 
     @staticmethod
     def get_current_award(hours):
-        awards = get_awards()
+        """Takes the current amount of hours and returns an award object with the current award earned by the user."""
+        awards = Award.get_awards()
 
-        index_found = False
+        current_award = None
         for i in range(len(awards)):
-            if hours - awards[i].threshold > 0 and not index_found:
+            if hours >= awards[i].threshold:
                 current_award = awards[i]
-                index_found = True
         
         return current_award
 
     @staticmethod
     def get_next_award(hours):
-        awards = get_awards()
-        current_award = get_current_award(hours)
+        awards = Award.get_awards()
+        current_award = Award.get_current_award(hours)
+        if current_award != None:
+            index = awards.index(current_award)
+            if index < len(awards) - 1:
+                next_award = awards[index + 1]
+            else:
+                next_award = None
+        else:
+            next_award = awards[0]
 
-        awards.index
+        return next_award

@@ -92,7 +92,7 @@ def callback():
         last_name = userinfo_response.json()["family_name"]
     else:
         return "User email not available or not verified by Google.", 400
-    users_email = "17087@burnside.school.nz"
+        
     if User.is_user(users_email):
         user = User.load(users_email)
 

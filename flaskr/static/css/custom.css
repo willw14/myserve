@@ -20,3 +20,19 @@ p{
 .gsignin:hover {
     background-image: url('/static/img/gsignin/btn_google_signin_light_focus_web@2x.png');
 }
+
+.sidenav {
+    background-color: #093f1a;
+}
+
+a {
+    color: #000000;
+}
+
+a:hover {
+    color: #0a5c23;
+}
+
+.dash-icon {
+    font-size: 60px;
+}

@@ -4,45 +4,53 @@
 
 {% block content %}
 <h3 class="display-6 text-center m-4">Welcome back, {{current_user.first_name}}!</h1>
-<div class="row">
+<div class="row align-items-center">
+  <div class="col-lg">
+    <div class="card mb-3 shadow p-2">
+        <div class="row g-0">
+          <div class="col-md-4 text-center">
+            <h1>{{'%0.2f' | format(current_user.total)}}</h1>
+            <h6>Hours</h6>
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5>completed this year so far...</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
     <div class="col-lg">
-        <div class="card mb-3 shadow-sm rounded-pill">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." alt="...">
+        <div class="card mb-3 shadow p-2">
+            <div class="row m-1 align-items-center">
+              <div class="col-md-4 text-center">
+                <i class="bi bi-award-fill dash-icon" style="color: {{current_award.colour}};"></i>
               </div>
               <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
+                <div class="card-body p-0">
+                  {% if current_award == None %}
+                  <h5 class="card-title">Keeping completing service to earn your first award!</h5>
+                  {% else %}
+                  <h5 class="card-title">Congratulations, you've earned your <strong>{{current_award.name}}</strong> award!</h5>
+                  {% endif %}
                 </div>
               </div>
             </div>
           </div>
     </div>
     <div class="col-lg">
-        <div class="card mb-3 shadow-sm rounded-pill">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." alt="...">
+        <div class="card mb-3 shadow p-2">
+            <div class="row m-1 align-items-center">
+              <div class="col-md-4 text-center">
+                <i class="bi bi-award dash-icon" style="color: {{next_award.colour}};"></i>
               </div>
               <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                </div>
-              </div>
-            </div>
-          </div>
-    </div>
-    <div class="col-lg">
-        <div class="card mb-3 shadow-sm rounded-pill">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="..." alt="...">
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                <div class="card-body p-0">
+                  {% if next_award != None %}
+                  <h5 class="card-title"><strong>{{'%0.2f' | format(next_award.threshold - current_user.total)}}</strong> more hours needed to earn your <strong>{{ next_award.name }}</strong> award.</h5>
+                  {% else %}
+                  <h5 class="card-title">Well done, you've earned the highest level of award possible!</h5>
+                  {% endif %}
                 </div>
               </div>
             </div>
