@@ -17,12 +17,41 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
-
+    <script>
+      $(document).ready(function(){
+        $('#content').css('display', 'none');
+        $('#content').fadeIn(200);
+      });
+    </script>
     <title>{% block title %}{% endblock %}</title>
     <link rel="shortcut icon" type="image/png" href="/static/img/favicon.png"/>
   </head>
   <body>
     {% block layout %}
     {% endblock %}
+    <script>
+          // delegate all clicks on "a" tag (links)
+      $(document).on("click", "a", function () {
+
+          // get the href attribute
+          var newUrl = $(this).attr("href");
+
+          // veryfy if the new url exists or is a hash
+          if (!newUrl || newUrl[0] === "#") {
+              // set that hash
+              location.hash = newUrl;
+              return;
+          }
+
+          // now, fadeout the html (whole page)
+          $("#content").fadeOut(200, function () {
+              // when the animation is complete, set the new location
+              location = newUrl;
+          });
+
+          // prevent the default browser behavior.
+          return false;
+      });
+    </script>
   </body>
 </html>

@@ -7,14 +7,14 @@
 <div class="row align-items-center">
   <div class="col-lg">
     <div class="card mb-3 shadow p-2">
-        <div class="row g-0">
+        <div class="row g-0 align-items-center">
           <div class="col-md-4 text-center">
-            <h1>{{'%0.2f' | format(current_user.total)}}</h1>
+            <h2>{{'%0.2f' | format(current_user.total)}}</h2>
             <h6>Hours</h6>
           </div>
           <div class="col-md-8">
             <div class="card-body">
-              <h5>completed this year so far...</h5>
+              <h5>completed this year so far!</h5>
             </div>
           </div>
         </div>
@@ -24,15 +24,20 @@
         <div class="card mb-3 shadow p-2">
             <div class="row m-1 align-items-center">
               <div class="col-md-4 text-center">
-                <i class="bi bi-award-fill dash-icon" style="color: {{current_award.colour}};"></i>
+                {% if current_award == None %}
+                <i class="bi bi-clock dash-icon"></i>
               </div>
               <div class="col-md-8">
                 <div class="card-body p-0">
-                  {% if current_award == None %}
                   <h5 class="card-title">Keeping completing service to earn your first award!</h5>
-                  {% else %}
+                {% else %}
+                  <i class="bi bi-trophy dash-icon" style="color: {{current_award.colour}};"></i>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body p-0">
+                  
                   <h5 class="card-title">Congratulations, you've earned your <strong>{{current_award.name}}</strong> award!</h5>
-                  {% endif %}
+                {% endif %}
                 </div>
               </div>
             </div>
@@ -42,15 +47,19 @@
         <div class="card mb-3 shadow p-2">
             <div class="row m-1 align-items-center">
               <div class="col-md-4 text-center">
+              {% if next_award != None %}
                 <i class="bi bi-award dash-icon" style="color: {{next_award.colour}};"></i>
               </div>
               <div class="col-md-8">
                 <div class="card-body p-0">
-                  {% if next_award != None %}
                   <h5 class="card-title"><strong>{{'%0.2f' | format(next_award.threshold - current_user.total)}}</strong> more hours needed to earn your <strong>{{ next_award.name }}</strong> award.</h5>
-                  {% else %}
+              {% else %}
+                <i class="bi bi-check-square dash-icon" style="color: green;"></i>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body p-0">
                   <h5 class="card-title">Well done, you've earned the highest level of award possible!</h5>
-                  {% endif %}
+              {% endif %}
                 </div>
               </div>
             </div>
