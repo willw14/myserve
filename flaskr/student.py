@@ -16,7 +16,8 @@ def dashboard():
 @login_required
 def add_hours():
     form = AddHours()
-    form.group.choices = [(group_assoc.group.id, group_assoc.group.name) for group_assoc in current_user.groups]
+    form.group.choices = [(group_assoc.group.id, group_assoc.group.name) for group_assoc in current_user.groups] + [(0, "No Group")]
+    print(form.group.choices)
     if form.validate_on_submit():
         flash(f"{form.hours.data:.2f} hour(s) logged for '{form.description.data}'", "update")
         Log.add_hours(

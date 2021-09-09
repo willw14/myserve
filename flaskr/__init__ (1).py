@@ -32,4 +32,4 @@ from flaskr.staff import staff as staff_blueprint
 app.register_blueprint(staff_blueprint, url_prefix="/staff")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

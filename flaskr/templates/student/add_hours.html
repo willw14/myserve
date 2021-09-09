@@ -1,39 +1,54 @@
 {% extends "side_nav_container.html" %}
 
 
-{% block title %}Add Hours | MyServe{% endblock %}
+{% block title %}Add Hours{% endblock %}
 
 {%block content%}
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.description.label }}<br>
-        {{ form.description }}
-        {% for error in form.description.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.hours.label }}<br>
-        {{ form.hours }}
-        {% for error in form.hours.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.group.label }}<br>
-        {{ form.group }}
-        {% for error in form.group.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.date.label }}<br>
-        {{ form.date }}
-        {% for error in form.date.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
+<div class="row">
+<div class="col-md">
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.description.label(class="form-label")}}<br>
+            {{ form.description(class="form-control") }}
+            {% for error in form.description.errors %}
+                <div class="valid-feedback">{{ error }}</div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.hours.label(class="form-label") }}<br>
+            {{ form.hours(class="form-control") }}
+            {% for error in form.hours.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.group.label(class="form-label") }}<br>
+            {{ form.group(class="form-select") }}
+            {% for error in form.group.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.teacher.label(class="form-label") }}<br>
+            {{ form.teacher(class="form-select") }}
+            {% for error in form.teacher.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.date.label(class="form-label") }}<br>
+            {{ form.date(class="form-control") }}
+            {% for error in form.date.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(type="submit", class="btn btn-success") }}</p>
+    </form>
+</div>
+<div class="col-md">
+    <h3>Need help?</h3>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, quo dicta fugiat delectus, assumenda soluta quas consequuntur nesciunt, id at magni autem corrupti laborum cum itaque minus! Ipsa, laborum a.</p>
+</div>
+</div>
 {% endblock %}

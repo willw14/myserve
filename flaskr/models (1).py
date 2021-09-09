@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
 
 
-class GroupMembers(db.Model):
-    __tablename__ = "group_members"
+class GroupMember(db.Model):
+    __tablename__ = "group_member"
     user_id = db.Column('user_id', db.String, db.ForeignKey('user.user_id'), primary_key=True)
     group_id = db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
     group_hours = db.Column('group_hours', db.Numeric())
@@ -32,7 +32,7 @@ class User(UserMixin, db.Model):
 
     role = db.relationship("UserRole", back_populates="role_group")
     hours = db.relationship("Log", back_populates="user", foreign_keys="Log.user_id")
-    groups = db.relationship("GroupMembers", back_populates="user")
+    groups = db.relationship("GroupMember", back_populates="user")
 
     @classmethod
     def load(cls, email):
@@ -54,7 +54,6 @@ class User(UserMixin, db.Model):
         Does not check whether the user has logged in before."""
         person = User.load(email)
         return person != None
-        #CHECK IF THE != NONE CAN BE DONE NICELY
 
     def update(self, unique_id, first_name, last_name, picture):
         """Updates a user's record in the database with account information retrieved from Google"""
@@ -62,6 +61,11 @@ class User(UserMixin, db.Model):
         self.is_active = True
         self.first_name, self.last_name = (first_name, last_name)
         self.photo = picture
+        #This may need to be moved to the enrollement section
+        if not self.is_active:
+            other_enrollement = GroupMember(user_id = self.id, group_id=0)
+            db.session.add(other_enrollement)
+            self.is_active = True
         db.session.commit()
         return
     
@@ -81,11 +85,11 @@ class Group(db.Model):
     access_code = db.Column(db.String(), unique=True)
 
     hours = db.relationship("Log", back_populates="group")
-    users = db.relationship("GroupMembers", back_populates="group")
+    users = db.relationship("GroupMember", back_populates="group")
 
     def user_total(self, user):
         """Takes a user object and finds how many hours the user has completed in that group."""
-        group_user = GroupMembers.load(user.id, self.id)
+        group_user = GroupMember.load(user.id, self.id)
         return group_user.group_hours
 
     @classmethod
@@ -95,7 +99,7 @@ class Group(db.Model):
 
     def get_teachers(self):
         """Uses the group ID to return a list of user objects of the teachers in a particualr group"""
-        teachers = User.query.join(User.groups).filter(GroupMembers.group_id == self.id, User.role_id.in_([2, 3])).all()
+        teachers = User.query.join(User.groups).filter(GroupMember.group_id == self.id, User.role_id.in_([2, 3])).all()
         return teachers
 
     def get_teachers_string(self):
@@ -151,7 +155,7 @@ class Log(db.Model):
             )
         db.session.add(new_hours)
         user.total += new_hours.time
-        group_member = GroupMembers.load(user_id=user.id, group_id=group_id)
+        group_member = GroupMember.load(user_id=user.id, group_id=group_id)
         group_member.group_hours += new_hours.time
         db.session.commit()
         return
