@@ -3,8 +3,8 @@
 {% block layout %}
 <div class="container-fluid">
     <div class="row flex-nowrap">
-        <div class="col-2 col-sm-4 col-md-3 col-xl-2 px-sm-2 px-0 sidenav shadow sticky-top">
-            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100">
+        <div class="col-2 col-sm-4 col-md-3 col-xl-2 px-sm-2 px-0 sidenav shadow">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100 sticky-top">
                 <a href='{{url_for("student.dashboard")}}' class="align-items-center py-3">
                     <img class="img-fluid d-none d-sm-block"src="/static/img/logo_wht.png">
                     <img class="img-fluid d-block d-sm-none"src="/static/img/favicon_lg.png">
@@ -35,17 +35,13 @@
                         <span class="d-none d-sm-inline mx-2">{{user.first_name}}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                        <li><a class="dropdown-item" href="#">Settings</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
                         <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">Sign out</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="col g-0">
-            <nav class="navbar navbar-dark bg-title px-3 py-0">
+            <nav class="navbar navbar-dark bg-title px-3 py-0 sticky-top">
                 <div class="container-fluid">
                     <span class="navbar-text text-white">
                         {% block title %}{% endblock %}

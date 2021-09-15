@@ -40,3 +40,7 @@ a:hover {
 .bg-title {
     background-color: #072b12;
 }
+
+.hidden {
+    display: none;
+}

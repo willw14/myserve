@@ -3,6 +3,10 @@ from flaskr import db
 from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
 
+STUDENT_ID = 1
+STAFF_ID = 2
+ADMIN_ID = 3
+
 
 class GroupMembers(db.Model):
     __tablename__ = "group_members"
@@ -56,6 +60,11 @@ class User(UserMixin, db.Model):
         return person != None
         #CHECK IF THE != NONE CAN BE DONE NICELY
 
+    @classmethod
+    def get_teachers(cls):
+        """Returns a list of all teachers in the database."""
+        return cls.query.filter(cls.role_id.in_((STAFF_ID, ADMIN_ID))).order_by(cls.last_name)
+
     def update(self, unique_id, first_name, last_name, picture):
         """Updates a user's record in the database with account information retrieved from Google"""
         self.google_id = unique_id
@@ -65,6 +74,9 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return
     
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
+
     def get_rank(self):
         """Returns the place of the user on the leaderboard.
         UNFINISHED"""
@@ -138,9 +150,9 @@ class Log(db.Model):
     group = db.relationship("Group", back_populates="hours")
     status = db.relationship("LogStatus", back_populates="hours")
 
-    @staticmethod
-    def add_hours(user, group_id, time, description, date):
-        new_hours = Log(
+    @classmethod
+    def add_hours(cls, user, group_id, teacher_id, time, description, date):
+        new_hours = cls(
             user_id=user.id, 
             group_id=group_id, 
             time=time, 
@@ -151,8 +163,13 @@ class Log(db.Model):
             )
         db.session.add(new_hours)
         user.total += new_hours.time
-        group_member = GroupMembers.load(user_id=user.id, group_id=group_id)
-        group_member.group_hours += new_hours.time
+
+        if group_id != "None":
+            group_member = GroupMembers.load(user_id=user.id, group_id=group_id)
+            group_member.group_hours += new_hours.time
+        else:
+            new_hours.teacher_id = teacher_id
+            
         db.session.commit()
         return
 

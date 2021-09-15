@@ -18,7 +18,11 @@
     
         <tr>
             <td>{{item.date}}</td>
-            <td>{{item.group.name}}</td>
+            {% if item.group == None %}
+            <td>Other</td>
+            {% else %}
+            <td><a href="/student/groups/{{ item.group.id }}">{{item.group.name}}</a></td>
+            {% endif %}
             <td>{{item.description}}</td>
             <td>{{'%0.2f' | format(item.time)}}</td>
         </tr>
