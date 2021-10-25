@@ -1,0 +1,35 @@
+{% extends 'staff/student_info.html' %}
+
+{% block buttons %}
+        <a class="btn btn-outline-success" href='{{url_for("staff.student_log", id=student.id)}}'>Log</a>
+        <a class="btn btn-success" href='{{url_for("staff.student_groups", id=student.id)}}'>Groups</a>
+{% endblock %}
+
+{% block table %}
+<table id="groups" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Group</th>
+            <th>Total Hours</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for group_assoc in student.groups %}
+    
+        <tr>
+            <td><a href='{{url_for("student.group_detail", id=group_assoc.group.id)}}'>{{group_assoc.group.name}}</a></td>
+            <td>{{'%0.2f' | format(group_assoc.group_hours)}}</td>
+            <td><a href='{{url_for("staff.student_log", id=student.id)}}'><i class="bi-three-dots"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+    $('#groups').DataTable();
+} );
+</script>
+
+{% endblock %}

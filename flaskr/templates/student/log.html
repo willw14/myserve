@@ -1,5 +1,6 @@
-{% extends "side_nav_container.html" %}
+{% extends 'app_container.html' %}
 
+{% block menu %}{% include 'student/menu.html'%}{% endblock %}
 {% block title %}Log{% endblock %}
 {% block breadcrumb %}Log{% endblock %}
 
@@ -9,9 +10,9 @@
     <thead>
         <tr>
             <th>Date Completed</th>
-            <th>Group</th>
             <th>Description</th>
-            <th>Time</th>
+            <th>Group</th>
+            <th>Hours</th>
             <th></th>
         </tr>
     </thead>
@@ -20,14 +21,18 @@
     
         <tr>
             <td>{{item.date}}</td>
+            <td>{{item.description}}</td>
             {% if item.group == None %}
             <td>Other</td>
             {% else %}
             <td><a href='{{url_for("student.group_detail", id=item.group.id)}}'>{{item.group.name}}</a></td>
             {% endif %}
-            <td>{{item.description}}</td>
             <td>{{'%0.2f' | format(item.time)}}</td>
+            {% if item.status_id == 1 %}
             <td><a href='{{url_for("student.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></td>
+            {% else %}
+            <td><i class="bi-lock-fill" data-bs-toggle="tooltip" data-bs-html="true" title="This item has been edited by a staff member. If you believe an error has been made, get in touch with your teacher-in-charge."></i></td>
+            {% endif %}
         </tr>
     {% endfor %}
     </tbody>
@@ -37,6 +42,11 @@
     $(document).ready(function() {
     $('#log').DataTable();
 } );
+
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
 </script>
 
 {% endblock %}

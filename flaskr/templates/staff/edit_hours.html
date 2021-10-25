@@ -1,8 +1,8 @@
-{% extends "hours_form.html" %}
+{% extends 'hours_form.html' %}
 
-{% block menu %}{% include 'student/menu.html'%}{% endblock %}
+{% block menu %}{% include 'staff/menu.html'%}{% endblock %}
 {% block title %}Edit Hours{% endblock %}
-{% block breadcrumb %}<a href='{{url_for("student.log")}}'>Log</a> / Edit Hours{% endblock %}
+{% block breadcrumb %}<a href="{{url_for('staff.students')}}">Students</a> / <a href="{{url_for('staff.student_log', id=student.id)}}">{{student.name()}}</a> / Edit Hours{% endblock %}
 
 {% block extra_buttons %}
 

@@ -1,0 +1,43 @@
+{% extends 'staff/student_info.html' %}
+
+{% block buttons %}
+        <a class="btn btn-success" href='{{url_for("staff.student_log", id=student.id)}}'>Log</a>
+        <a class="btn btn-outline-success" href='{{url_for("staff.student_groups", id=student.id)}}'>Groups</a>
+{% endblock %}
+
+{% block table %}
+<table id="log" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>Date Completed</th>
+            <th>Description</th>
+            <th>Group</th>
+            <th>Hours</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in student.hours %}
+    
+        <tr>
+            <td>{{item.date}}</td>
+            <td>{{item.description}}</td>
+            {% if item.group == None %}
+            <td>Other</td>
+            {% else %}
+            <td><a href='{{url_for("staff.student_group_detail", student_id=item.user_id, group_id=item.group.id)}}'>{{item.group.name}}</a></td>
+            {% endif %}
+            <td>{{'%0.2f' | format(item.time)}}</td>
+            <td><a href='{{url_for("staff.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+    $('#log').DataTable();
+} );
+</script>
+
+{% endblock %}

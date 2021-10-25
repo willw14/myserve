@@ -1,4 +1,5 @@
 from flask_login import UserMixin, user_logged_in
+from functools import wraps
 from flaskr import db
 from datetime import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -40,28 +41,34 @@ class User(UserMixin, db.Model):
     groups = db.relationship("GroupMembers", back_populates="user")
 
     groups_proxy = association_proxy('groups', 'group') #bypass GroupMember objects to get a list of user's groups
-    #ERASE IF NO LONGER NEEDED
+    #Remove IF NO LONGER NEEDED
     log_group_proxy = association_proxy('hours', 'group') #bypass Log objects to get a list of groups in user's log
 
     @classmethod
-    def load(cls, email):
+    def load_by_email(cls, email):
         """Loads a user from the database using their email."""
         return cls.query.filter_by(email=email).first()
+
+    @classmethod
+    def load_by_id(cls, id):
+        """Loads a user from the database using their email."""
+        return cls.query.filter_by(id=id).first()
 
     @staticmethod
     def enrol(user_id, email, role, form_class=None):
         """Adds a user to the database so that they can then sign in with Google."""
-        #NOT TESTED
+        #NOT TESTED - TOTAL MUST BE SET TO 0 FOR STUDENTS
         new_user = User(id=user_id, email=email, role_id=role, form_class=form_class, total=0)
         db.session.add(new_user)
         db.session.commit()
         return
 
+    #probably unneeded - remove
     @staticmethod
     def is_user(email):
         """Checks to see if the user attempting to log in to the site is authorised and in the database.
         Does not check whether the user has logged in before."""
-        person = User.load(email)
+        person = User.load_by_email(email)
         return person != None
         #CHECK IF THE != NONE CAN BE DONE NICELY
 
@@ -69,6 +76,11 @@ class User(UserMixin, db.Model):
     def get_teachers(cls):
         """Returns a list of all teachers in the database."""
         return cls.query.filter(cls.role_id.in_((STAFF_ID, ADMIN_ID))).order_by(cls.last_name)
+    
+    @classmethod
+    def get_students(cls):
+        """Returns a list of all students in the database."""
+        return cls.query.filter(cls.role_id==STUDENT_ID).order_by(cls.last_name)
 
     def update(self, unique_id, first_name, last_name, picture):
         """Updates a user's record in the database with account information retrieved from Google"""
@@ -79,6 +91,11 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return
     
+    def is_allowed(self, role_required):
+        """determines if a user should be able to access a certain page depedning on their access level"""
+        #users must have required role, unless they are an admin (then they can also access staff pages)
+        return self.role_id == role_required or (role_required == 2 and self.role_id == 3)
+
     def name(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -114,6 +131,33 @@ class User(UserMixin, db.Model):
             group = GroupMembers.load(group_id=int(group_id), user_id=self.id)
             db.session.delete(group)
         db.session.commit()
+    
+    def get_current_award(self):
+        """Takes the current amount of hours and returns an award object with the current award earned by the user."""
+        awards = Award.get_awards()
+
+        current_award = None
+        for i in range(len(awards)):
+            if self.total >= awards[i].threshold:
+                current_award = awards[i]
+        
+        return current_award
+
+    def get_next_award(self):
+        awards = Award.get_awards()
+        current_award = self.get_current_award()
+        if current_award != None:
+            index = awards.index(current_award)
+            if index < len(awards) - 1:
+                next_award = awards[index + 1]
+            else:
+                next_award = None
+        else:
+            next_award = awards[0]
+
+        return next_award
+
+
 
 class Group(db.Model):
     __tablename__ = 'group'
@@ -220,7 +264,7 @@ class Log(db.Model):
         db.session.commit()
         return
     
-    def edit_hours(self, group_id, teacher_id, time, description, date):
+    def edit_hours(self, group_id, teacher_id, time, description, date, status=1):
         """Something cool"""
         old_time = self.time
         old_group = self.group
@@ -231,7 +275,7 @@ class Log(db.Model):
         self.description = description
         self.date = date
         self.log_time = datetime.now()
-        self.status_id = 1
+        self.status_id = status
         self.teacher_id = None
 
         self.user.total += difference
@@ -281,30 +325,3 @@ class Award(db.Model):
     @staticmethod
     def get_awards():
         return Award.query.order_by(Award.threshold).all()
-
-    @staticmethod
-    def get_current_award(hours):
-        """Takes the current amount of hours and returns an award object with the current award earned by the user."""
-        awards = Award.get_awards()
-
-        current_award = None
-        for i in range(len(awards)):
-            if hours >= awards[i].threshold:
-                current_award = awards[i]
-        
-        return current_award
-
-    @staticmethod
-    def get_next_award(hours):
-        awards = Award.get_awards()
-        current_award = Award.get_current_award(hours)
-        if current_award != None:
-            index = awards.index(current_award)
-            if index < len(awards) - 1:
-                next_award = awards[index + 1]
-            else:
-                next_award = None
-        else:
-            next_award = awards[0]
-
-        return next_award

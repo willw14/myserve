@@ -94,7 +94,7 @@ def callback():
         return "User email not available or not verified by Google.", 400
         
     if User.is_user(users_email):
-        user = User.load(users_email)
+        user = User.load_by_email(users_email)
 
         #Updates the user's record with their info from Google in case anything e.g. picture has changed
         user.update(unique_id, first_name, last_name, picture)

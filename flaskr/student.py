@@ -3,18 +3,21 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required
 student = Blueprint('student', __name__)
 from flaskr.forms import AddHours, JoinGroups
-from flaskr.models import User, Log, Award, Group, GroupMembers
+from flaskr.models import STUDENT_ID, STAFF_ID, ADMIN_ID, User, Log, Award, Group
+from flaskr.decorators import permission_required
 
 @student.route('/dashboard')
 @login_required
+@permission_required(STUDENT_ID)
 def dashboard():
-    current_award = Award.get_current_award(current_user.total)
-    next_award = Award.get_next_award(current_user.total)
+    current_award = current_user.get_current_award()
+    next_award = current_user.get_next_award()
 
     return render_template("student/dashboard.html", user=current_user, current_award=current_award, next_award=next_award)
 
 @student.route('/add-hours', methods=['GET', 'POST'])
 @login_required
+@permission_required(STUDENT_ID)
 def add_hours():
     form = AddHours()
     form.group.choices = current_user.get_group_options() + [(None, "No Group")]
@@ -37,15 +40,15 @@ def add_hours():
 
 @student.route('/groups')
 @login_required
+@permission_required(STUDENT_ID)
 def groups():
     return render_template("student/groups.html", user=current_user)
 
 @student.route('/groups/<int:id>')
 @login_required
+@permission_required(STUDENT_ID)
 def group_detail(id):
     group = Group.load(id)
-    print(group)
-    print(current_user.groups_proxy)
     if group not in current_user.groups_proxy:
         flash("Whoops! That page doesn't exist.", "error")
         return redirect(url_for('student.dashboard'))
@@ -54,11 +57,13 @@ def group_detail(id):
 
 @student.route('/log')
 @login_required
+@permission_required(STUDENT_ID)
 def log():
     return render_template("student/log.html", user=current_user)
 
 @student.route('/edit-hours/<int:id>', methods=['GET', 'POST'])
 @login_required
+@permission_required(STUDENT_ID)
 def edit_hours(id):
     item = Log.load(id)
     if item not in current_user.hours:
@@ -96,6 +101,7 @@ def edit_hours(id):
 
 @student.route('/groups/edit', methods=['GET', 'POST'])
 @login_required
+@permission_required(STUDENT_ID)
 def edit_groups():
     form = JoinGroups()
     form.groups.choices = Group.get_group_options()

@@ -1,4 +1,6 @@
-{% extends "side_nav_container.html" %}
+{% extends 'app_container.html' %}
+
+{% block menu %}{% include 'student/menu.html'%}{% endblock %}
 
 {% block title %}Groups{% endblock %}
 {% block breadcrumb %}Groups{% endblock %}

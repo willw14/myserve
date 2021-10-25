@@ -1,0 +1,22 @@
+{% extends 'app_container.html' %}
+
+{% block menu %}{% include 'staff/menu.html'%}{% endblock %}
+{% block title %}{{student.name()}}{% endblock %}
+{% block breadcrumb %}<a href="{{url_for('staff.students')}}">Students</a> / {{student.name()}}{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-3 g-2">
+    <div class="col-md-auto">
+        <img src={{student.photo}} alt="Profile Photo" width="30" height="30" class="rounded-circle">
+        <span class="h3 mx-2 align-middle">{{student.name()}}</span>
+    </div>
+    <div class="col-md-auto">
+        <span class="p align-middle"><strong>Total Hours:</strong> {{'%0.2f' | format(student.total)}}</span>
+        <span class="p align-middle ms-3"><strong>Current Award:</strong> {{student.get_current_award().name}}</span>
+    </div>
+    <div class="col-xl text-xl-end">
+        {% block buttons %}{% endblock %}
+    </div>
+</div>
+{% block table %}{% endblock %}
+{% endblock %}

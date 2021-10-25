@@ -1,0 +1,10 @@
+{% extends 'app_container.html' %}
+
+{% block menu %}{% include 'staff/menu.html'%}{% endblock %}
+
+{% block title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<h3 class="display-6 text-center m-4">Welcome, {{current_user.first_name}}!</h1>
+{% endblock %}
