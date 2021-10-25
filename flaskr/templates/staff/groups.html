@@ -1,0 +1,71 @@
+{% extends 'app_container.html' %}
+
+{% block menu %}{% include 'staff/menu.html'%}{% endblock %}
+{% block title %}Groups{% endblock %}
+{% block breadcrumb %}Groups{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+<a class="btn btn-outline-success" href='{{url_for("staff.edit_groups")}}'>Edit Groups</a>
+<a class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#createGroup">Create Group</a>
+</div>
+
+<table id="groups" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>Group</th>
+            <th>No. Students</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for group in user.groups_proxy %}
+    
+        <tr>
+            <td><p><a href='{{url_for("staff.group_detail", id=group.id)}}'>{{group.name}}</a></p></td>
+            <td><p>{{group.get_no_students()}}</p></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="createGroup" tabindex="-1" aria-labelledby="createGroupLabel" aria-hidden={{('"false" if form.group.error else "true"')}}>
+    <div class="modal-dialog">
+        <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="createGroupLabel">Create Group</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                {{ form.name(id="group", class="form-control"  + (" is-invalid" if form.name.errors else ""), aria_describedby="nameFeedback") }}
+                    <div class="form-text">Enter a group name of 40 characters or less. <strong>Make sure you've checked that someone else hasn't already created the group you're about to create.</strong></div>
+                    {% for error in form.name.errors %}
+                        <div id="nameFeedback" class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+            </div>
+            <div class="modal-footer">
+                <div class=row>
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col text-end">
+                        {{ form.save(type="submit", class="btn btn-success") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+$(document).ready(function() {
+    $('#groups').DataTable();
+    {% if form.name.errors %}
+    $("#createGroup").modal('show');
+    {% endif %}
+});
+</script>
+
+{% endblock %}
