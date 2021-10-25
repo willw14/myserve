@@ -1,3 +1,83 @@
-{% block hours_form}
+{% extends "side_nav_container.html" %}
 
+{% block content %}
+<div class="row">
+    <div class="col-md">
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.description.label(class="form-label")}}
+                {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), aria_describedby="descriptionFeedback") }}
+                <div class="form-text">Briefly describe what you're logging hours for.</div>
+                {% for error in form.description.errors %}
+                    <div id="descriptionFeedback" class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.hours.label(class="form-label") }}
+                {{ form.hours(class="form-control" + (" is-invalid" if form.hours.errors else ""), aria_describedby="hoursFeedback") }}
+                <div class="form-text">Enter any amounts in minutes as a fraction of an hour e.g. 20 mins = 0.33 hrs.</div>
+                {% for error in form.hours.errors %}
+                    <div id="hoursFeedback" class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.group.label(class="form-label") }}
+                {{ form.group(id="group", class="form-select"  + (" is-invalid" if form.group.errors else ""), aria_describedby="groupFeedback") }}
+                <div class="form-text">Don't see your group? Make sure you've joined the group, or if it's not there, select 'No Group' and enter a teacher.</div>
+                {% for error in form.group.errors %}
+                    <div id="groupFeedback" class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div id="teacher" class="hidden mb-3">
+                {{ form.teacher.label(class="form-label") }}<br>
+                {{ form.teacher(class="form-select" + (" is-invalid" if form.teacher.errors else ""), aria_describedby="teacherFeedback") }}
+                <div class="form-text">Select a teacher who could verify that you undertook this work. They'll be able to see that you've selected them.</div>
+                {% for error in form.teacher.errors %}
+                    <div id="teacherFeedback" class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.date.label(class="form-label") }}<br>
+                {{ form.date(placeholder="dd/mm/yy", class="form-control" + (" is-invalid" if form.date.errors else ""), aria_describedby="dateFeedback") }}
+                <div class="form-text">If you're entering hours for multiple events together, enter the date of your latest work.</div>
+                {% for error in form.date.errors %}
+                    <div id="date" class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col">
+                    {{ form.submit(type="submit", class="btn btn-success") }}
+                </div>
+                <div class="col text-end">
+                    {% block extra_buttons %}{% endblock %}
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md mt-4">
+        {% block help_text %}{% endblock %}
+    </div>
+    </div>
+    
+    <script>
+    $('#group').on('change',function(){
+            if( $(this).val()==="None"){
+            $("#teacher").show()
+            }
+            else{
+            $("#teacher").hide()
+            }
+        });
+    </script>
+    <script>
+    $(document).ready(function(){
+        if( $("#group").val()==="None"){
+            $("#teacher").show()
+            }
+            else{
+            $("#teacher").hide()
+            }
+      });
+    </script>
 {% endblock %}

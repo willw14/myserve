@@ -1,6 +1,7 @@
 {% extends "side_nav_container.html" %}
 
 {% block title %}Log{% endblock %}
+{% block breadcrumb %}Log{% endblock %}
 
 {% block content %}
 <h4>Total Hours: {{'%0.2f' | format(user.total)}}</h4>
@@ -11,6 +12,7 @@
             <th>Group</th>
             <th>Description</th>
             <th>Time</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -21,10 +23,11 @@
             {% if item.group == None %}
             <td>Other</td>
             {% else %}
-            <td><a href="/student/groups/{{ item.group.id }}">{{item.group.name}}</a></td>
+            <td><a href='{{url_for("student.group_detail", id=item.group.id)}}'>{{item.group.name}}</a></td>
             {% endif %}
             <td>{{item.description}}</td>
             <td>{{'%0.2f' | format(item.time)}}</td>
+            <td><a href='{{url_for("student.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>

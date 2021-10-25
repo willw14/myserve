@@ -1,17 +1,19 @@
 {% extends "side_nav_container.html" %}
 
-{% block title %}Groups > {{ group.name }}{% endblock %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block breadcrumb %}<a href='{{url_for("student.groups")}}'>Groups</a> / {{ group.name }}{% endblock %}
 
 {% block content %}
-<h1>{{ group.name }}</h1>
-<h5>Teacher(s) In Charge: {{group.get_teachers_string()}}</h5>
-<h5>Hours from Group: {{'%0.2f' | format(group.user_total(user))}}</h5>
+<h2>{{ group.name }}</h1>
+<p class="mb-1">Teacher(s) In Charge: {{group.get_teachers_string()}}</p>
+<p>Hours from Group: {{'%0.2f' | format(group.user_total(user))}}</p>
 <table id="groups" class="table table-striped" style="width:100%">
     <thead>
         <tr>
             <th>Date</th>
             <th>Description</th>
             <th>Hours</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +22,7 @@
             <td>{{item.date}}</td>
             <td>{{item.description}}</td>
             <td>{{'%0.2f' | format(item.time)}}</td>
+            <td><a href='{{url_for("student.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>

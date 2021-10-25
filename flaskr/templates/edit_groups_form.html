@@ -1,0 +1,25 @@
+{% extends "side_nav_container.html" %}
+
+{% block content %}
+
+
+{% block help_text %}{% endblock %}
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {% for group in form.groups %}
+                <div class="form-check form-switch mb-2">
+                    {% if group.data in disabled_groups %}
+                        {{ group(class="form-check-input", id=group.label.text + "Switch", disabled=True)}}
+                    {% else %}
+                        {{ group(class="form-check-input", id=group.label.text + "Switch")}}
+                    {% endif %}
+                    
+                    {{ group.label(class="form-check-label", for=group.label.text + "Switch") }}
+                </div>
+            {% endfor %}
+    
+            <div class="col pt-2">
+                {{ form.submit(type="submit", class="btn btn-success") }}
+            </div>
+        </form>
+{% endblock %}

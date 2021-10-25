@@ -1,0 +1,11 @@
+{% extends "edit_groups_form.html" %}
+
+
+{% block title %}Edit Groups{% endblock %}
+{% block breadcrumb %}<a href='{{url_for("student.groups")}}'>Groups</a> / Edit Groups{% endblock %}
+
+{% block help_text %}
+
+<p class="mb-1">Select the groups you're a part of so that you can log your hours with them. The teacher(s) in charge of that group will then be able to see your work.</p>
+<p class="small"><em>Groups which you've already logged hours under are greyed out.</em></p>
+{% endblock %}

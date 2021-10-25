@@ -1,9 +1,10 @@
 {% extends "side_nav_container.html" %}
 
 {% block title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
 
 {% block content %}
-<h3 class="display-6 text-center m-4">Welcome back, {{current_user.first_name}}!</h1>
+<h3 class="display-6 text-center m-4">Welcome, {{current_user.first_name}}!</h1>
 <div class="row align-items-center">
   <div class="col-lg">
     <div class="card mb-3 shadow p-2">

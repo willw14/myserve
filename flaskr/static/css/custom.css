@@ -38,9 +38,21 @@ a:hover {
 }
 
 .bg-title {
-    background-color: #072b12;
+    background-color: #05220e;
 }
 
 .hidden {
     display: none;
+}
+
+/* overrides the bootstrap switch colouring with the myserve colouring */
+.form-check-input:checked {
+    background-color: #249345;
+    border-color: #249345;
+}
+
+/* overrides the table colouring with the myserve colouring */
+.page-item.active .page-link {
+    background-color: #249345;
+    border-color: #249345;
 }

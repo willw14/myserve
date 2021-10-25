@@ -1,67 +1,10 @@
-{% extends "side_nav_container.html" %}
+{% extends "hours_form.html" %}
 
 
 {% block title %}Add Hours{% endblock %}
+{% block breadcrumb %}Add Hours{% endblock %}
 
-{%block content%}
-<div class="row">
-<div class="col-md">
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.description.label(class="form-label")}}
-            {{ form.description(class="form-control") }}
-            
-            {% for error in form.description.errors %}
-                <div class="valid-feedback">{{ error }}</div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.hours.label(class="form-label") }}
-            {{ form.hours(class="form-control") }}
-            {% for error in form.hours.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.group.label(class="form-label") }}
-            {{ form.group(class="form-select", id="group") }}
-            {% for error in form.group.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
-        <p id="teacher" class="hidden">
-            {{ form.teacher.label(class="form-label") }}<br>
-            {{ form.teacher(class="form-select") }}
-            {% for error in form.teacher.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.date.label(class="form-label") }}<br>
-            {{ form.date(class="form-control") }}
-            {% for error in form.date.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit(type="submit", class="btn btn-success") }}</p>
-    </form>
-</div>
-<div class="col-md">
-    <h3>Need help?</h3>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, quo dicta fugiat delectus, assumenda soluta quas consequuntur nesciunt, id at magni autem corrupti laborum cum itaque minus! Ipsa, laborum a.</p>
-</div>
-</div>
-
-<script>
-$('#group').on('change',function(){
-        if( $(this).val()==="None"){
-        $("#teacher").show()
-        }
-        else{
-        $("#teacher").hide()
-        }
-    });
-
-</script>
+{% block help_text %}
+<h3>Need help?</h3>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, quo dicta fugiat delectus, assumenda soluta quas consequuntur nesciunt, id at magni autem corrupti laborum cum itaque minus! Ipsa, laborum a.</p>
 {% endblock %}
