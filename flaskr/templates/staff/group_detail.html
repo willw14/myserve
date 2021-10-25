@@ -1,0 +1,84 @@
+{% extends 'app_container.html' %}
+
+{% block menu %}{% include 'staff/menu.html'%}{% endblock %}
+{% block title %}{{group.name}}{% endblock %}
+{% block breadcrumb %}<a href="{{url_for('staff.groups')}}">Groups</a> / {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm">
+        <h3>{{ group.name }}</h3>
+        <p class="mb-1">Teacher(s) In Charge: {{group.get_teachers_string()}}</p>
+        <p>Total Students: {{ group.get_no_students()}}</p>
+    </div>
+    <div class="col-sm text-md-end">
+        <a class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Group</a>
+    </div>
+</div>
+
+<table id="students" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Form Class</th>
+            <th>Hours</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for student in group.get_students() %}
+    
+        <tr>
+            <td><p>{{student.user.id}}</p></td>
+            <td><p>{{student.user.first_name}}</p></td>
+            <td><p>{{student.user.last_name}}</p></td>
+            <td><p>{{student.user.form_class}}</p></td>
+            <td><p>{{'%0.2f' | format(student.group_hours)}}</p></td>
+            <td>
+                <div class="dropdown">
+                    <i class="bi-three-dots" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href='{{url_for("staff.student_group_detail", student_id=student.user_id, group_id=group.id)}}'>View group log</a></li>
+                        <li><a class="dropdown-item" href='{{url_for("staff.student_log", id=student.user_id)}}'>View full profile</a></li>
+                    </ul>
+                  </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirm</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          Are you sure you want to delete this group? All hours logged by students under this group will also be deleted. 
+          <p><strong>This cannot be undone.</strong></p>
+        </div>
+        <div class="modal-footer">
+            <div class=row>
+                <div class="col">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+                <div class="col text-end">
+                    <a href='{{url_for("staff.group_delete", id=group.id)}}' type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    $(document).ready(function() {
+    $('#students').DataTable();
+} );
+</script>
+
+{% endblock %}

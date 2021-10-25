@@ -21,8 +21,8 @@
     {% for group_assoc in user.groups %}
     
         <tr>
-            <td><a href='{{url_for("student.group_detail", id=group_assoc.group.id)}}'>{{group_assoc.group.name}}</a></td>
-            <td>{{'%0.2f' | format(group_assoc.group_hours)}}</td>
+            <td><p><a href='{{url_for("student.group_detail", id=group_assoc.group.id)}}'>{{group_assoc.group.name}}</a></p></td>
+            <td><p>{{'%0.2f' | format(group_assoc.group_hours)}}</p></td>
         </tr>
     {% endfor %}
     </tbody>

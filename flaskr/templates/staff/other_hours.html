@@ -1,26 +1,30 @@
 {% extends 'app_container.html' %}
 
 {% block menu %}{% include 'staff/menu.html'%}{% endblock %}
-{% block title %}{{group.name}}{% endblock %}
-{% block breadcrumb %}<a href="{{url_for('staff.students')}}">Students</a> / <a href="{{url_for('staff.student_log', id=student.id)}}">{{student.name()}}</a>{% endblock %}
+{% block title %}Other Hours{% endblock %}
+{% block breadcrumb %}Other Hours</a>{% endblock %}
 
 {% block content %}
-<h2>{{ group.name }}</h1>
-<p class="mb-1">Teacher(s) In Charge: {{group.get_teachers_string()}}</p>
-<p>Hours from Group: {{'%0.2f' | format(group.user_total(student))}}</p>
+<p>These hours are from students who have indicated that you oversaw their work which did not fit into any of the groups avaialble.</p>
 <table id="groups" class="table table-striped" style="width:100%">
     <thead>
         <tr>
             <th>Date</th>
+            <th>Student ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
             <th>Description</th>
             <th>Hours</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-    {% for item in group.get_user_log(student) %}
+    {% for item in user.get_hours_responsible() %}
         <tr>
             <td><p>{{item.date}}</p></td>
+            <td><p>{{item.user.id}}</p></td>
+            <td><p>{{item.user.first_name}}</p></td>
+            <td><p>{{item.user.last_name}}</p></td>
             <td><p>{{item.description}}</p></td>
             <td><p>{{'%0.2f' | format(item.time)}}</p></td>
             <td><p><a href='{{url_for("staff.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></p></td>

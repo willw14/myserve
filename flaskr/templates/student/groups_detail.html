@@ -20,10 +20,10 @@
     <tbody>
     {% for item in group.get_user_log(user) %}
         <tr>
-            <td>{{item.date}}</td>
-            <td>{{item.description}}</td>
-            <td>{{'%0.2f' | format(item.time)}}</td>
-            <td><a href='{{url_for("student.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></td>
+            <td><p>{{item.date}}</p></td>
+            <td><p>{{item.description}}</p></td>
+            <td><p>{{'%0.2f' | format(item.time)}}</p></td>
+            <td><p><a href='{{url_for("student.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></p></td>
         </tr>
     {% endfor %}
     </tbody>

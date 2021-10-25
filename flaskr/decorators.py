@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import redirect, url_for
+from flask import redirect, url_for, flash
 from flask_login import current_user
 
 def permission_required(role_required):
@@ -7,7 +7,7 @@ def permission_required(role_required):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_allowed(role_required):
-                return redirect(url_for(current_user.role.name + '.dashboard', message="Whoops! We couldn't find that page!"))
+                return redirect(url_for(current_user.role.name + '.dashboard'))
             return f(*args, **kwargs)
         return decorated_function
 

@@ -37,3 +37,8 @@ class MultiCheckboxField(SelectMultipleField):
 class JoinGroups(FlaskForm):
      groups = MultiCheckboxField('Select Groups')
      submit = SubmitField("Save")
+
+
+class CreateGroup(FlaskForm):
+     name = TextField('Group Name', validators=[DataRequired(), Length(max=40, message="Please enter a group name with less than 40 characters.")])
+     save = SubmitField("Create")

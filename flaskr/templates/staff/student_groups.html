@@ -18,9 +18,16 @@
     {% for group_assoc in student.groups %}
     
         <tr>
-            <td><a href='{{url_for("student.group_detail", id=group_assoc.group.id)}}'>{{group_assoc.group.name}}</a></td>
-            <td>{{'%0.2f' | format(group_assoc.group_hours)}}</td>
-            <td><a href='{{url_for("staff.student_log", id=student.id)}}'><i class="bi-three-dots"></i></a></td>
+            <td><p><a href='{{url_for("staff.student_group_detail", student_id=group_assoc.user_id, group_id=group_assoc.group_id)}}'>{{group_assoc.group.name}}</a></p></td>
+            <td><p>{{'%0.2f' | format(group_assoc.group_hours)}}</p></td>
+            <td>
+                <div class="dropdown">
+                    <i class="bi-three-dots" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href='{{url_for("staff.student_group_detail", student_id=group_assoc.user_id, group_id=group_assoc.group_id)}}'>View group log</a></li>
+                    </ul>
+                </div>
+            </td>
         </tr>
     {% endfor %}
     </tbody>

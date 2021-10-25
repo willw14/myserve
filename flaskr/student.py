@@ -75,8 +75,8 @@ def edit_hours(id):
     form.teacher.choices = User.get_teacher_options()
 
     if request.method == 'GET':
-        form.group.data = item.group_id
-        form.teacher.data = item.teacher_id
+        form.group.data = str(item.group_id)
+        form.teacher.data = str(item.teacher_id)
         form.hours.data = item.time
         form.description.data = item.description
         form.date.data = item.date

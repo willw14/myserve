@@ -112,15 +112,27 @@ class User(UserMixin, db.Model):
         """returns a list of the ids of groups which a user has logged hours under. We don't want them to be
         able to be removed from the group if they've logged hours under it"""
         group_ids = []
-        for item in self.hours:
-            group_ids.append(item.group_id)
+
+        if self.role_id == STUDENT_ID:
+            for item in self.hours:
+                group_ids.append(item.group_id)
+        else:
+            for group in self.groups_proxy:
+                if len(group.get_teachers()) <= 1:
+                    group_ids.append(group.id)
         return group_ids
     
     def join_groups(self, groups_join):
         """takes a list of group ids and a user and adds a new GroupMember object to the database for each one,
          adding them to those groups"""
+         #setup total placeholder - if its students then we want to start at 0 hours, if staff we don't want any placeholder
+        if self.role_id == STUDENT_ID:
+            placeholder = 0
+        else:
+            placeholder = None
+        
         for group_id in groups_join:
-            group = GroupMembers(group_id=int(group_id), user_id=self.id, group_hours=0)
+            group = GroupMembers(group_id=int(group_id), user_id=self.id, group_hours=placeholder)
             db.session.add(group)
         db.session.commit()
 
@@ -156,14 +168,16 @@ class User(UserMixin, db.Model):
             next_award = awards[0]
 
         return next_award
-
-
+    
+    def get_hours_responsible(self):
+        """retrieves the hours which a teacher has been indicated by students as being responsible for"""
+        return Log.query.filter(Log.teacher_id == self.id).all()
+        
 
 class Group(db.Model):
     __tablename__ = 'group'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(), unique=True)
-    access_code = db.Column(db.String(), unique=True)
 
     hours = db.relationship("Log", back_populates="group")
     users = db.relationship("GroupMembers", back_populates="group")
@@ -177,6 +191,14 @@ class Group(db.Model):
     def load(cls, id):
         """Loads a group from the database using its ID"""
         return cls.query.filter_by(id=id).first()
+
+    @classmethod
+    def create(cls, name):
+        """Creates a new group, returning a group object so it can be used for other things"""
+        new_group = cls(name=name)
+        db.session.add(new_group)
+        db.session.commit()
+        return new_group
 
     @classmethod
     def get_all(cls):
@@ -195,6 +217,15 @@ class Group(db.Model):
         """Uses the group ID to return a list of user objects of the teachers in a particualr group"""
         teachers = User.query.join(User.groups).filter(GroupMembers.group_id == self.id, User.role_id.in_((STAFF_ID, ADMIN_ID))).all()
         return teachers
+    
+    def get_students(self):
+        """Uses the group ID to return a list of user objects of the students in a particualr group"""
+        teachers = GroupMembers.query.join(GroupMembers.user).filter(GroupMembers.group_id == self.id, User.role_id==STUDENT_ID).all()
+        return teachers
+    
+    def get_no_students(self):
+        """returns the number of students in a given group"""
+        return len(self.get_students())
 
     def get_teachers_string(self):
         """Gives the teachers of a group in a format suitable for display"""
@@ -208,6 +239,12 @@ class Group(db.Model):
         """takes a user object and returns a list of all of a users hours in that group"""
         logged_items = Log.query.filter(Log.user_id == user.id, Log.group_id==self.id).all()
         return logged_items
+
+    def delete(self):
+        """deletes a group"""
+        db.session.delete(self)
+        db.session.commit()
+        return
 
 
 class UserRole(db.Model):

@@ -20,14 +20,14 @@
     {% for item in student.hours %}
     
         <tr>
-            <td>{{item.date}}</td>
-            <td>{{item.description}}</td>
+            <td><p>{{item.date}}</p></td>
+            <td><p>{{item.description}}</p></td>
             {% if item.group == None %}
-            <td>Other</td>
+            <td><p>>Other</p></td>
             {% else %}
-            <td><a href='{{url_for("staff.student_group_detail", student_id=item.user_id, group_id=item.group.id)}}'>{{item.group.name}}</a></td>
+            <td><a href='{{url_for("staff.student_group_detail", student_id=item.user_id, group_id=item.group.id)}}'><p>{{item.group.name}}</p></a></td>
             {% endif %}
-            <td>{{'%0.2f' | format(item.time)}}</td>
+            <td><p>{{'%0.2f' | format(item.time)}}</p></td>
             <td><a href='{{url_for("staff.edit_hours", id=item.id)}}'><i class="bi-pencil-fill"></i></a></td>
         </tr>
     {% endfor %}
