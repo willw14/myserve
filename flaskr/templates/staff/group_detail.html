@@ -42,6 +42,7 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                         <li><a class="dropdown-item" href='{{url_for("staff.student_group_detail", student_id=student.user_id, group_id=group.id)}}'>View group log</a></li>
                         <li><a class="dropdown-item" href='{{url_for("staff.student_log", id=student.user_id)}}'>View full profile</a></li>
+                        <li><a class="dropdown-item" href='{{url_for("staff.student_group_delete", group_id=group.id, student_id=student.user_id)}}'>Remove from group</a></li>
                     </ul>
                   </div>
             </td>
@@ -67,7 +68,7 @@
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
                 <div class="col text-end">
-                    <a href='{{url_for("staff.group_delete", id=group.id)}}' type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</a>
+                    <a type="button" href="{{url_for('staff.group_delete', id=group.id)}}"class="btn btn-danger" data-bs-dismiss="modal">Delete</a>
                 </div>
             </div>
         </div>

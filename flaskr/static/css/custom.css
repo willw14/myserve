@@ -12,15 +12,6 @@ p{
     font-family: open-sans, sans-serif;
 }
 
-.gsignin {
-    background-image: url('/static/img/gsignin/btn_google_signin_light_normal_web@2x.png');
-    background-repeat: no-repeat;
-}
-
-.gsignin:hover {
-    background-image: url('/static/img/gsignin/btn_google_signin_light_focus_web@2x.png');
-}
-
 .sidenav {
     background-color: #093f1a;
 }
@@ -55,4 +46,8 @@ a:hover {
 .page-item.active .page-link {
     background-color: #249345;
     border-color: #249345;
+}
+
+.dataTables_length {
+    margin-bottom: 0.5rem;
 }

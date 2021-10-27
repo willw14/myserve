@@ -1,0 +1,52 @@
+{% extends 'app_container.html' %}
+
+{% block menu %}
+{% include 'staff/menu.html'%}
+{% endblock %}
+
+{% block title %}Manage{% endblock %}
+{% block breadcrumb %}Manage{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a class="btn btn-success" href='{{url_for("staff.manage_add")}}'>Add Users</a>
+  <a class="btn btn-outline-success" href='{{url_for("staff.manage_remove")}}'>Remove Users</a>
+  </div>
+
+<p>To upload new users, please download and fill out <a onclick="window.open ('/static/downloads/myserve_user_upload_template.csv', ''); return false" href="#">this template</a>, ensuring that:</p>
+<ul>
+  <li><p>The file is saved and uploaded as a .csv file</p</li>
+  <li><p>No modifications are made to the headers in the file</p</li>
+  <li><p>ID column (required) - enter the student number or teacher code (capitalised). This must also be the front of their x@burnside.school.nz email address, otherwise they will be unable to sign in.</p</li>
+  <li><p>Name columns - although these columns will automatically be updated with those from their Google Account when they sign in for the first time, it is best to include them in the interim so that students can be searched for by name before their first sign in.</p</li>
+  <li><p>Form class column (required for students) - enter the form class of students. This is not needed for teachers. </p</li>
+  <li><p>Role column (required) - enter the role of the user as "student", "staff" or "admin". Admin users have the same privillages as staff, but are also able to add/remove users.</p</li>
+</ul>
+<p>If these requirements are not met, the system will provide a breakdown of the errors in the file uploaded.</p>
+
+<form action="" method="post" enctype="multipart/form-data" novalidate>
+    {{ form.hidden }}
+    {{ form.csrf_token }}
+    <div class="row">
+      <div class="col-auto mb-3">
+        {{ form.file(class="form-control" + (" is-invalid" if form.file.errors else ""), type="file", id="file") }}
+      </div>
+      <div class="col-sm-auto">
+        {{ form.upload(class="btn btn-outline-success", type="submit") }}
+      </div>
+    </div>
+    {% for error in form.file.errors %}
+      <div id="file" class="invalid-feedback">{{ error }}</div>
+    {% endfor %}
+</form>
+
+{% for row in errors %}
+<p>Errors in row {{ row[0] }}:</p>
+<ul>
+  {% for error in row[1] %}
+  <li>{{ error }}</li>
+  {% endfor %}
+</ul>
+{% endfor %}
+
+{% endblock %}

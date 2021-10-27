@@ -1,15 +1,24 @@
 {% extends "base.html" %}
 
+{% block title %}Welcome{% endblock %}
 {% block layout %}
-<div class="container-fluid">
-    <div class="row">
+<div id="content" class="container-fluid">
+    <div class="row p-4">
+        <div class="col-3">
+            <img class="img-fluid d-none d-sm-block"src="/static/img/logo_blk.png">
+        </div>
+    </div>
+    <div class="row p-4">
         <div class="col-md-4">
-            <a href="/login">
-                <div class="gsignin"></div>
+            <img class="img-fluid d-none d-sm-block"src="/static/img/myserve_mockup.png">
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-outline-dark" href='{{url_for("auth.login")}}' type="button">
+                <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                Login with Google
             </a>
         </div>
     </div>
+  </div>
 </div>
-
-
 {% endblock %}

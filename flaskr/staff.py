@@ -151,18 +151,38 @@ def group_detail(id):
 @permission_required(USER_ROLE["staff"])
 def group_delete(id):
     group = Group.load(id)
+    if not group:
+        flash("Whoops! That page doesn't exist.", "error")
+        return redirect(url_for('staff.dashboard'))
+    
     for student in group.get_students():
-        for item in group.get_user_log(student.user):
-            item.delete()
-        student.user.leave_groups([group.id])
+        group.remove_user(student)
     
     for teacher in group.get_teachers():
-        teacher.leave_groups([group.id])
+        group.remove_user(teacher)
     
     group.delete()
     flash(f"{group.name} was deleted successfully.", "updates")
 
     return redirect(url_for("staff.groups"))
+
+@staff.route('/students/groups/delete/<int:student_id>/<int:group_id>')
+@login_required
+@permission_required(USER_ROLE["staff"])
+def student_group_delete(student_id, group_id):
+    student = User.load_by_id(student_id)
+    group = Group.load(group_id)
+    if not group or not student:
+        flash("Whoops! That page doesn't exist.", "error")
+        return redirect(url_for('staff.dashboard'))
+    elif group not in student.groups_proxy:
+        flash("Whoops! That page doesn't exist.", "error")
+        return redirect(url_for('staff.dashboard'))
+    print(student)
+    group.remove_user(student)
+    flash("User removed successfully.", "update")
+
+    return redirect(url_for("staff.group_detail", id=group_id))
 
 @staff.route('/other-hours')
 @login_required
@@ -170,16 +190,16 @@ def group_delete(id):
 def other_hours():
     return render_template("staff/other_hours.html", user=current_user)
 
-@staff.route('/manage', methods=['GET', 'POST'])
+@staff.route('/manage/add', methods=['GET', 'POST'])
 @login_required
-@permission_required(USER_ROLE["staff"])
-def manage():
+@permission_required(USER_ROLE["admin"])
+def manage_add():
     form = UserUpload()
     errors = []
     if form.validate_on_submit():
         filename = data.save(form.file.data)
         file_valid = True
-        file_path = ['UPLOADED_DATA_DEST'] + filename
+        file_path = app.config['UPLOADED_DATA_DEST'] + filename
         with open(file_path) as file:
             #split the row into a list while taking out the header row
             file_rows = file.read().splitlines()[1:]
@@ -199,9 +219,29 @@ def manage():
                 db.session.commit()
                 flash(f"{num_users} users were added successfully.", "update")
             else:
-                flash(f"There were errors in the file you uploaded", "update")
+                flash(f"There were errors in the file you uploaded. None of the users have been uploaded.", "error")
                 db.session.rollback() 
         os.remove(file_path)
     elif form.is_submitted():
         flash("Please upload a valid .csv file.", "error")
-    return render_template("staff/manage.html", user=current_user, form=form, errors=errors)
+    return render_template("staff/manage_add.html", user=current_user, form=form, errors=errors)
+
+@staff.route('/manage/remove')
+@login_required
+@permission_required(USER_ROLE["admin"])
+def manage_remove():
+    users = User.get_all()
+    return render_template("staff/manage_remove.html", user=current_user, users=users)
+
+@staff.route('/manage/remove/<id>')
+@login_required
+@permission_required(USER_ROLE["admin"])
+def manage_remove_user(id):
+    user = User.load_by_id(id)
+    if not user:
+        flash("Whoops! That page doesn't exist.", "error")
+        return redirect(url_for('staff.dashboard'))
+
+    user.remove()
+    flash(f"User {user.id} was removed successfully.", "update")
+    return redirect(url_for('staff.manage_remove'))

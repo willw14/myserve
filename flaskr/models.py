@@ -50,6 +50,11 @@ class User(UserMixin, db.Model):
     def load_by_email(cls, email):
         """Loads a user from the database using their email."""
         return cls.query.filter_by(email=email).first()
+    
+    @classmethod
+    def get_all(cls):
+        """gets all users in the database"""
+        return cls.query.all()
 
     @classmethod
     def load_by_id(cls, id):
@@ -61,21 +66,33 @@ class User(UserMixin, db.Model):
         """Created a user object, suitable for adding to the database.
         If the info supplied is incorrect, a list of the reasons why is returned instead. """
         errors = []
-        new_user = User(first_name=first_name, last_name=last_name, form_class=form_class)
+        new_user = User(photo="/static/img/profile-photo-placeholder.jpg")
 
         #check that the user's id is unique
         if user_id and not User.load_by_id(user_id):
             new_user.id = user_id
-            new_user.email = f"{user_id}@{EMAIL_END}"
+            new_user.email = f"{str(user_id).lower()}@{EMAIL_END}"
         else:
             errors.append(f'The User ID "{user_id}" is invalid or already in the database.')
-        
+
         if role in USER_ROLE.keys():
             new_user.role_id = USER_ROLE[role]
             if new_user.role_id == USER_ROLE["student"]:
                 new_user.total = 0
         else:
             errors.append(f"{role} is not a valid role for users - it must be 'student', 'staff' or 'admin'.")
+        
+        if new_user.role_id == USER_ROLE["student"]:
+            if form_class:
+                new_user.form_class = form_class
+            else:
+                errors.append(f"{role} is not a valid role for users - it must be 'student', 'staff' or 'admin'.")
+        
+        if first_name and last_name:
+            new_user.first_name=first_name
+            new_user.last_name=last_name
+        else:
+            errors.append(f"Please ensure that both first and last names are provided for this user.")
 
         if errors:
             return errors
@@ -201,6 +218,18 @@ class User(UserMixin, db.Model):
         """retrieves the hours which a teacher has been indicated by students as being responsible for"""
         return Log.query.filter(Log.teacher_id == self.id).all()
 
+    def remove(self):
+        """removes a user and all data associated with them from the database"""
+        for hour in self.hours:
+            hour.delete()
+
+        for group in self.groups_proxy:
+            group.remove_user(self)
+        
+        db.session.delete(self)
+        db.session.commit()
+        return
+
 
 class Group(db.Model):
     __tablename__ = 'group'
@@ -273,6 +302,15 @@ class Group(db.Model):
         db.session.delete(self)
         db.session.commit()
         return
+    
+    def remove_user(self, user):
+        """deletes all of a user's hours from a group (if student), then removes them."""
+        if user.role_id == USER_ROLE['student']:
+            for item in self.get_user_log(user):
+                item.delete()
+        user.leave_groups([self.id])
+        return
+
 
 
 class UserRole(db.Model):

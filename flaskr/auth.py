@@ -47,7 +47,7 @@ def login():
     )
     return redirect(request_uri)
 
-@auth.route("/login/callback")
+@auth.route("/login/callback", methods=["GET", "POST"])
 def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
