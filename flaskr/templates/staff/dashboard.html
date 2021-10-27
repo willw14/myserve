@@ -1,10 +1,66 @@
 {% extends 'app_container.html' %}
 
-{% block menu %}{% include 'staff/menu.html'%}{% endblock %}
+{% block menu %}
+{% include 'staff/menu.html'%}
+{% endblock %}
 
 {% block title %}Dashboard{% endblock %}
 {% block breadcrumb %}Dashboard{% endblock %}
 
 {% block content %}
 <h3 class="display-6 text-center m-4">Welcome, {{current_user.first_name}}!</h1>
+<div class="row">
+    <div class="col">
+        <div class="row">
+            <div class="col-auto">
+                <span class="h3 align-middle">Your Groups</span>
+            </div>
+            <div class="col text-end">
+                <a href='{{url_for("staff.groups")}}' class="btn btn-outline-success d-inline align-middle" type="button">View all</a>
+            </div>
+        </div>
+        <table id="groups" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>No. Students</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for group in groups%}
+                <tr>
+                    <td><p><a href='{{url_for("staff.group_detail", id=group.id)}}'>{{group.name}}</a></p></td>
+                    <td><p>{{group.get_no_students()}}</p></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col-auto">
+                <span class="h3 align-middle">Top Students</span>
+            </div>
+            <div class="col text-end">
+                <a href='{{url_for("staff.students")}}' class="btn btn-outline-success d-inline align-middle" type="button">View all</a>
+            </div>
+        </div>
+        <table id="groups" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for student in students%}
+                <tr>
+                    <td><p><a href='{{url_for("staff.student_log", id=student.id)}}'>{{student.name()}}</a></p></td>
+                    <td><p>{{'%0.2f' | format(student.total)}}</p></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

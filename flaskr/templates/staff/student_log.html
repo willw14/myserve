@@ -23,7 +23,7 @@
             <td><p>{{item.date}}</p></td>
             <td><p>{{item.description}}</p></td>
             {% if item.group == None %}
-            <td><p>>Other</p></td>
+            <td><p>Other</p></td>
             {% else %}
             <td><a href='{{url_for("staff.student_group_detail", student_id=item.user_id, group_id=item.group.id)}}'><p>{{item.group.name}}</p></a></td>
             {% endif %}

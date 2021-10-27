@@ -1,0 +1,30 @@
+{% extends 'app_container.html' %}
+
+{% block menu %}
+{% include 'staff/menu.html'%}
+{% endblock %}
+
+{% block title %}Manage{% endblock %}
+{% block breadcrumb %}Manage{% endblock %}
+
+{% block content %}
+<form action="" method="post" enctype="multipart/form-data" novalidate>
+    {{ form.hidden }}
+    {{ form.csrf_token }}
+    {{ form.file(class="form-control" + (" is-invalid" if form.file.errors else ""), type="file", id="file") }}
+    {% for error in form.file.errors %}
+      <div id="file" class="invalid-feedback">{{ error }}</div>
+    {% endfor %}
+    {{ form.upload(class="btn btn-outline-success", type="submit") }}
+</form>
+
+{% for row in errors %}
+<p>Errors in Line {{ row[0] }}:</p>
+<ul>
+  {% for error in row[1] %}
+  <li>{{ error }}</li>
+  {% endfor %}
+</ul>
+{% endfor %}
+
+{% endblock %}

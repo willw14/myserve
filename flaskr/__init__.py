@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_uploads import UploadSet, configure_uploads
 import os
 
 db = SQLAlchemy()
@@ -8,13 +9,18 @@ db = SQLAlchemy()
 app = Flask(__name__)
 
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
-app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['UPLOADED_DATA_DEST'] = 'uploads/'
 
 db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.init_app(app)
+
+data = UploadSet(name='data', extensions=('csv'))
+configure_uploads(app, data)
+
 
 from flaskr.models import User
 

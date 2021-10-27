@@ -2,12 +2,15 @@ from flask_login import UserMixin, user_logged_in
 from functools import wraps
 from flaskr import db
 from datetime import datetime
+from sqlalchemy import desc
 from sqlalchemy.ext.associationproxy import association_proxy
 
+USER_ROLE = {"student": 1, 
+    "staff": 2,
+    "admin": 3
+}
 
-STUDENT_ID = 1
-STAFF_ID = 2
-ADMIN_ID = 3
+EMAIL_END = "burnside.school.nz"
 
 
 class GroupMembers(db.Model):
@@ -41,7 +44,6 @@ class User(UserMixin, db.Model):
     groups = db.relationship("GroupMembers", back_populates="user")
 
     groups_proxy = association_proxy('groups', 'group') #bypass GroupMember objects to get a list of user's groups
-    #Remove IF NO LONGER NEEDED
     log_group_proxy = association_proxy('hours', 'group') #bypass Log objects to get a list of groups in user's log
 
     @classmethod
@@ -55,13 +57,31 @@ class User(UserMixin, db.Model):
         return cls.query.filter_by(id=id).first()
 
     @staticmethod
-    def enrol(user_id, email, role, form_class=None):
-        """Adds a user to the database so that they can then sign in with Google."""
-        #NOT TESTED - TOTAL MUST BE SET TO 0 FOR STUDENTS
-        new_user = User(id=user_id, email=email, role_id=role, form_class=form_class, total=0)
-        db.session.add(new_user)
-        db.session.commit()
-        return
+    def enroll_new_user(user_id, first_name, last_name, form_class, role):
+        """Created a user object, suitable for adding to the database.
+        If the info supplied is incorrect, a list of the reasons why is returned instead. """
+        errors = []
+        new_user = User(first_name=first_name, last_name=last_name, form_class=form_class)
+
+        #check that the user's id is unique
+        if user_id and not User.load_by_id(user_id):
+            new_user.id = user_id
+            new_user.email = f"{user_id}@{EMAIL_END}"
+        else:
+            errors.append(f'The User ID "{user_id}" is invalid or already in the database.')
+        
+        if role in USER_ROLE.keys():
+            new_user.role_id = USER_ROLE[role]
+            if new_user.role_id == USER_ROLE["student"]:
+                new_user.total = 0
+        else:
+            errors.append(f"{role} is not a valid role for users - it must be 'student', 'staff' or 'admin'.")
+
+        if errors:
+            return errors
+        else:
+            db.session.add(new_user)
+            return new_user
 
     #probably unneeded - remove
     @staticmethod
@@ -75,12 +95,17 @@ class User(UserMixin, db.Model):
     @classmethod
     def get_teachers(cls):
         """Returns a list of all teachers in the database."""
-        return cls.query.filter(cls.role_id.in_((STAFF_ID, ADMIN_ID))).order_by(cls.last_name)
+        return cls.query.filter(cls.role_id.in_((USER_ROLE["staff"], USER_ROLE["admin"]))).order_by(cls.last_name)
     
     @classmethod
     def get_students(cls):
         """Returns a list of all students in the database."""
-        return cls.query.filter(cls.role_id==STUDENT_ID).order_by(cls.last_name)
+        return cls.query.filter(cls.role_id == USER_ROLE["student"]).order_by(cls.last_name)
+    
+    @classmethod
+    def get_top_students(cls):
+        """Returns a list of the top 5 students in the database."""
+        return cls.query.filter(cls.role_id == USER_ROLE["student"]).order_by(desc(cls.total)).limit(5).all()
 
     def update(self, unique_id, first_name, last_name, picture):
         """Updates a user's record in the database with account information retrieved from Google"""
@@ -111,22 +136,25 @@ class User(UserMixin, db.Model):
     def get_disabled_groups(self):
         """returns a list of the ids of groups which a user has logged hours under. We don't want them to be
         able to be removed from the group if they've logged hours under it"""
-        group_ids = []
+        group_ids = set()
 
-        if self.role_id == STUDENT_ID:
+        if self.role_id == USER_ROLE["student"]:
             for item in self.hours:
-                group_ids.append(item.group_id)
+                #checks that the group has an id (ones where the student has put a teacher don't have one)
+                #if they're left in, None gets added which causes problems
+                if item.group_id:
+                    group_ids.add(item.group_id)
         else:
             for group in self.groups_proxy:
                 if len(group.get_teachers()) <= 1:
-                    group_ids.append(group.id)
-        return group_ids
+                    group_ids.add(group.id)
+        return list(group_ids)
     
     def join_groups(self, groups_join):
         """takes a list of group ids and a user and adds a new GroupMember object to the database for each one,
          adding them to those groups"""
          #setup total placeholder - if its students then we want to start at 0 hours, if staff we don't want any placeholder
-        if self.role_id == STUDENT_ID:
+        if self.role_id == USER_ROLE["student"]:
             placeholder = 0
         else:
             placeholder = None
@@ -172,7 +200,7 @@ class User(UserMixin, db.Model):
     def get_hours_responsible(self):
         """retrieves the hours which a teacher has been indicated by students as being responsible for"""
         return Log.query.filter(Log.teacher_id == self.id).all()
-        
+
 
 class Group(db.Model):
     __tablename__ = 'group'
@@ -215,12 +243,12 @@ class Group(db.Model):
 
     def get_teachers(self):
         """Uses the group ID to return a list of user objects of the teachers in a particualr group"""
-        teachers = User.query.join(User.groups).filter(GroupMembers.group_id == self.id, User.role_id.in_((STAFF_ID, ADMIN_ID))).all()
+        teachers = User.query.join(User.groups).filter(GroupMembers.group_id == self.id, User.role_id.in_((USER_ROLE["staff"], USER_ROLE["admin"]))).all()
         return teachers
     
     def get_students(self):
         """Uses the group ID to return a list of user objects of the students in a particualr group"""
-        teachers = GroupMembers.query.join(GroupMembers.user).filter(GroupMembers.group_id == self.id, User.role_id==STUDENT_ID).all()
+        teachers = GroupMembers.query.join(GroupMembers.user).filter(GroupMembers.group_id == self.id, User.role_id==USER_ROLE["student"]).all()
         return teachers
     
     def get_no_students(self):

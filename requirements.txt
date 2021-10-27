@@ -6,3 +6,5 @@ Flask-Login==0.4.1
 flask_sqlalchemy
 flask_wtf
 wtforms
+flask_uploads
+email-validator

@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import SelectField, TextField, DecimalField, DateField, SubmitField, SelectMultipleField, widgets
 from wtforms.validators import DataRequired, Length, ValidationError, NumberRange
 import datetime
-from flask_login import current_user
 
 
 def validate_legnth(form, field):
@@ -42,3 +42,8 @@ class JoinGroups(FlaskForm):
 class CreateGroup(FlaskForm):
      name = TextField('Group Name', validators=[DataRequired(), Length(max=40, message="Please enter a group name with less than 40 characters.")])
      save = SubmitField("Create")
+
+
+class UserUpload(FlaskForm):
+     file = FileField('Upload File', validators=[FileRequired(), FileAllowed(['csv'], 'Please upload a .csv file.')])
+     upload = SubmitField("Upload", validators=[])

@@ -3,12 +3,12 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required
 student = Blueprint('student', __name__)
 from flaskr.forms import AddHours, JoinGroups
-from flaskr.models import STUDENT_ID, STAFF_ID, ADMIN_ID, User, Log, Award, Group
+from flaskr.models import USER_ROLE, User, Log, Award, Group
 from flaskr.decorators import permission_required
 
 @student.route('/dashboard')
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def dashboard():
     current_award = current_user.get_current_award()
     next_award = current_user.get_next_award()
@@ -17,7 +17,7 @@ def dashboard():
 
 @student.route('/add-hours', methods=['GET', 'POST'])
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def add_hours():
     form = AddHours()
     form.group.choices = current_user.get_group_options() + [(None, "No Group")]
@@ -40,13 +40,13 @@ def add_hours():
 
 @student.route('/groups')
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def groups():
     return render_template("student/groups.html", user=current_user)
 
 @student.route('/groups/<int:id>')
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def group_detail(id):
     group = Group.load(id)
     if group not in current_user.groups_proxy:
@@ -57,13 +57,13 @@ def group_detail(id):
 
 @student.route('/log')
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def log():
     return render_template("student/log.html", user=current_user)
 
 @student.route('/edit-hours/<int:id>', methods=['GET', 'POST'])
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def edit_hours(id):
     item = Log.load(id)
     if item not in current_user.hours:
@@ -101,7 +101,7 @@ def edit_hours(id):
 
 @student.route('/groups/edit', methods=['GET', 'POST'])
 @login_required
-@permission_required(STUDENT_ID)
+@permission_required(USER_ROLE["student"])
 def edit_groups():
     form = JoinGroups()
     form.groups.choices = Group.get_group_options()
