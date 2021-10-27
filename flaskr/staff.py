@@ -1,29 +1,36 @@
-from flask_wtf.form import _is_submitted
-from flaskr import app
+from typing import List
+from sqlalchemy.sql.sqltypes import String
+from flaskr import db, app, data
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required
-from flaskr.forms import AddHours, JoinGroups, CreateGroup
-from flaskr.models import STAFF_ID, ADMIN_ID, User, Log, Award, Group
+from flaskr.forms import AddHours, JoinGroups, CreateGroup, UserUpload
+from flaskr.models import USER_ROLE, User, Log, Group
 from flaskr.decorators import permission_required
+import os
 
 staff = Blueprint('staff', __name__)
 
 @staff.route('/dashboard')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def dashboard():
-    return render_template("staff/dashboard.html", user=current_user)
+    groups = sorted(current_user.groups_proxy, key=lambda x: x.get_no_students(), reverse=True)
+    if len(groups) >= 5:
+        groups = groups[:5]
+    
+    top_students = User.get_top_students()
+    return render_template("staff/dashboard.html", user=current_user, groups=groups, students=top_students)
 
 @staff.route('/students')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def students():
     students = User.get_students()
     return render_template("staff/students.html", user=current_user, students=students)
 
 @staff.route('/students/log/<int:id>')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def student_log(id):
     student = User.load_by_id(id)
     if not student:
@@ -34,7 +41,7 @@ def student_log(id):
 
 @staff.route('/students/groups/<int:id>')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def student_groups(id):
     student = User.load_by_id(id)
     if not student:
@@ -45,7 +52,7 @@ def student_groups(id):
 
 @staff.route('/students/groups/<int:student_id>/<int:group_id>')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def student_group_detail(student_id, group_id):
     student = User.load_by_id(student_id)
     group = Group.load(group_id)
@@ -60,7 +67,7 @@ def student_group_detail(student_id, group_id):
 
 @staff.route('/edit-hours/<int:id>', methods=['GET', 'POST'])
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def edit_hours(id):
     item = Log.load(id)
     student = User.load_by_id(item.user_id)
@@ -73,8 +80,8 @@ def edit_hours(id):
     form.teacher.choices = User.get_teacher_options()
 
     if request.method == 'GET':
-        form.group.data = item.group_id
-        form.teacher.data = item.teacher_id
+        form.group.data = str(item.group_id)
+        form.teacher.data = str(item.teacher_id)
         form.hours.data = item.time
         form.description.data = item.description
         form.date.data = item.date
@@ -99,7 +106,7 @@ def edit_hours(id):
 
 @staff.route('/groups', methods=['GET', 'POST'])
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def groups():
     form = CreateGroup()
     if request.method == "POST" and form.validate_on_submit():
@@ -109,7 +116,7 @@ def groups():
 
 @staff.route('/groups/edit', methods=['GET', 'POST'])
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def edit_groups():
     form = JoinGroups()
     form.groups.choices = Group.get_group_options()
@@ -133,7 +140,7 @@ def edit_groups():
 
 @staff.route('/groups/<int:id>')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def group_detail(id):
     group = Group.load(id)
 
@@ -141,7 +148,7 @@ def group_detail(id):
 
 @staff.route('/groups/delete/<int:id>')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def group_delete(id):
     group = Group.load(id)
     for student in group.get_students():
@@ -159,6 +166,42 @@ def group_delete(id):
 
 @staff.route('/other-hours')
 @login_required
-@permission_required(STAFF_ID)
+@permission_required(USER_ROLE["staff"])
 def other_hours():
     return render_template("staff/other_hours.html", user=current_user)
+
+@staff.route('/manage', methods=['GET', 'POST'])
+@login_required
+@permission_required(USER_ROLE["staff"])
+def manage():
+    form = UserUpload()
+    errors = []
+    if form.validate_on_submit():
+        filename = data.save(form.file.data)
+        file_valid = True
+        file_path = ['UPLOADED_DATA_DEST'] + filename
+        with open(file_path) as file:
+            #split the row into a list while taking out the header row
+            file_rows = file.read().splitlines()[1:]
+            num_users = len(file_rows)
+            for index, row in enumerate(file_rows):
+                row_data = row.split(",")
+                line_no = index + 2
+                if len(row_data) == 5:
+                    new_user = User.enroll_new_user(row_data[0], row_data[1], row_data[2], row_data[3], row_data[4])
+                    if isinstance(new_user, list):
+                        file_valid = False
+                        errors.append((line_no, new_user))
+                else:
+                    file_valid = False
+                    errors.append((line_no, [f"The user at line {line_no} was missing required information. Please ensure that you have at least entered the user's ID, email and role."]))
+            if file_valid:
+                db.session.commit()
+                flash(f"{num_users} users were added successfully.", "update")
+            else:
+                flash(f"There were errors in the file you uploaded", "update")
+                db.session.rollback() 
+        os.remove(file_path)
+    elif form.is_submitted():
+        flash("Please upload a valid .csv file.", "error")
+    return render_template("staff/manage.html", user=current_user, form=form, errors=errors)
