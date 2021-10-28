@@ -100,15 +100,6 @@ class User(UserMixin, db.Model):
             db.session.add(new_user)
             return new_user
 
-    #probably unneeded - remove
-    @staticmethod
-    def is_user(email):
-        """Checks to see if the user attempting to log in to the site is authorised and in the database.
-        Does not check whether the user has logged in before."""
-        person = User.load_by_email(email)
-        return person != None
-        #CHECK IF THE != NONE CAN BE DONE NICELY
-
     @classmethod
     def get_teachers(cls):
         """Returns a list of all teachers in the database."""

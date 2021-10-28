@@ -5,7 +5,10 @@
 {% block breadcrumb %}Log{% endblock %}
 
 {% block content %}
-<h4>Total Hours: {{'%0.2f' | format(user.total)}}</h4>
+<div class="mb-3">
+    <span class="p align-middle"><strong>Total Hours:</strong> {{'%0.2f' | format(user.total)}}</span>
+    <span class="p align-middle ms-3"><strong>Current Award:</strong> {{user.get_current_award().name}}</span>
+</div>
 <table id="log" class="table table-striped" style="width:100%">
     <thead>
         <tr>

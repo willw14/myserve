@@ -35,7 +35,7 @@ def add_hours():
         flash(f"{form.hours.data:.2f} hour(s) logged for '{form.description.data}'", "update")
         return redirect(url_for('student.add_hours'))
     elif form.is_submitted():
-        flash("Please check that the information you've supplied.", "error")
+        flash("Please check the information you've supplied.", "error")
     return render_template("student/add_hours.html", user=current_user, form=form)
 
 @student.route('/groups')

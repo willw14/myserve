@@ -1,5 +1,5 @@
 import json
-from flask import Flask, redirect, request, url_for, Blueprint, render_template
+from flask import Flask, redirect, request, url_for, Blueprint, render_template, flash
 from flask_login import (
     LoginManager,
     current_user,
@@ -47,7 +47,7 @@ def login():
     )
     return redirect(request_uri)
 
-@auth.route("/login/callback", methods=["GET", "POST"])
+@auth.route("/login/callback")
 def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
@@ -91,19 +91,20 @@ def callback():
         first_name = userinfo_response.json()["given_name"]
         last_name = userinfo_response.json()["family_name"]
     else:
-        return "User email not available or not verified by Google.", 400
-        
-    if User.is_user(users_email):
-        user = User.load_by_email(users_email)
-
+        flash("User email not available or not verified by Google.", "error")
+        return redirect(url_for("auth.index"))
+    
+    user = User.load_by_email(users_email)
+    if user:
         #Updates the user's record with their info from Google in case anything e.g. picture has changed
         user.update(unique_id, first_name, last_name, picture)
 
         login_user(user, remember=True)
+        #due to redirects, this wil still send staff to their dashboard
         redirect_to = "student.dashboard"
     else:
         redirect_to = "auth.index"
-    #ADD SOME SORT OF HANDLING IF USER HASN'T BEEN GRANTED ACCESS
+        flash("This account hasn't been granted access to MyServe. This service is only accessible to Year 13 students and staff. If you believe you should have access, please your system administrator.", "error")
     return redirect(url_for(redirect_to))
     
 

@@ -3,21 +3,32 @@
 {% block title %}Welcome{% endblock %}
 {% block layout %}
 <div id="content" class="container-fluid">
-    <div class="row p-4">
-        <div class="col-3">
-            <img class="img-fluid d-none d-sm-block"src="/static/img/logo_blk.png">
-        </div>
-    </div>
-    <div class="row p-4">
-        <div class="col-md-4">
-            <img class="img-fluid d-none d-sm-block"src="/static/img/myserve_mockup.png">
-        </div>
-        <div class="col-md-3">
+    <div class="row min-vh-100">
+        <div class="col-md-5 order-sm-last sidenav p-5" >
+            <img width="250" class="img-fluid d-block mb-3"src="/static/img/logo_wht.png">
+            <h3 class="text-white mb-3">My service, my way.</h3>
+            <p class="text-white mb-5">Keep track of your school service using the all-in-one, online solution.</p>
+            
+            {% with errors = get_flashed_messages(category_filter="error") %}
+            {% if errors %}
+                {% for msg in errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            
             <a class="btn btn-outline-dark" href='{{url_for("auth.login")}}' type="button">
-                <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                <img width="20" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
                 Login with Google
             </a>
         </div>
+        <div class="col align-items-center">
+            <img class="img-fluid align-middle"src="/static/img/myserve_mockup.png">
+        </div>
+        
     </div>
   </div>
 </div>
