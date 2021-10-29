@@ -1,0 +1,18 @@
+Hey there!
+
+Here's how to run MyServe on your device!
+
+    1. Get started by using pip to make sure you've installed everything in requirements.txt
+    Use pip3 install -r requirements.txt in the terminal to do so.
+    2. Use the run.ps1 (powershell) or run.sh (bash) scripts to launch the app.
+    You may run into a few privacy problems when trying to do so; if that's the case, you can
+    launch the app by copying a pasting the code from the file into the terminal.
+    3. Demo accounts - you'll need to use one of the demo Google accounts to access the app.
+    You should use:
+        - myserve.student@gmail.com to access the student portal
+        - myserve.staff@gmail.com to access the staff/admin portal
+        This account is actually an admin type, not staff, as you can't put admin in Gmail email addresses
+
+        The password for both accounts is myserve123.
+        
+Happy MyServing!
